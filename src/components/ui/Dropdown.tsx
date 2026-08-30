@@ -47,7 +47,7 @@ export const Dropdown: React.FC<DropdownProps> = ({
   return (
     <div className={clsx('relative flex flex-col gap-1 text-left', className)} ref={dropdownRef}>
       {label && (
-        <span className="text-2xs font-medium uppercase tracking-wider text-slate-400">
+        <span className="text-2xs font-medium uppercase tracking-wider text-slate-600 dark:text-slate-400 font-mono">
           {label}
         </span>
       )}
@@ -56,10 +56,10 @@ export const Dropdown: React.FC<DropdownProps> = ({
         disabled={disabled}
         onClick={() => setIsOpen(!isOpen)}
         className={clsx(
-          'inline-flex items-center justify-between gap-2 px-3 py-1.5 text-xs bg-slate-900 border rounded text-slate-200 transition-colors',
+          'inline-flex items-center justify-between gap-2 px-3 py-1.5 text-xs bg-white dark:bg-slate-900 border rounded text-slate-800 dark:text-slate-200 transition-colors shadow-2xs',
           'focus:outline-none focus:ring-1 focus:ring-sky-500',
-          disabled ? 'opacity-50 cursor-not-allowed' : 'border-slate-800 hover:border-slate-700 cursor-pointer',
-          isOpen ? 'border-sky-500' : ''
+          disabled ? 'opacity-50 cursor-not-allowed' : 'border-slate-300 dark:border-slate-800 hover:border-slate-400 dark:hover:border-slate-700 cursor-pointer',
+          isOpen ? 'border-sky-500 ring-1 ring-sky-500/30' : ''
         )}
       >
         <span className="truncate flex items-center gap-2">
@@ -70,7 +70,7 @@ export const Dropdown: React.FC<DropdownProps> = ({
       </button>
 
       {isOpen && !disabled && (
-        <div className="absolute top-full left-0 mt-1 w-full min-w-[160px] bg-slate-900 border border-slate-750 rounded shadow-xl py-1 z-50 animate-in fade-in-50 duration-100">
+        <div className="absolute top-full left-0 mt-1 w-full min-w-[160px] bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-750 rounded shadow-xl py-1 z-50 animate-in fade-in-50 duration-100">
           {options.map((option) => (
             <button
               key={option.value}
@@ -82,8 +82,8 @@ export const Dropdown: React.FC<DropdownProps> = ({
               }}
               className={clsx(
                 'w-full flex items-center justify-between px-3 py-1.5 text-xs text-left transition-colors',
-                option.disabled ? 'opacity-40 cursor-not-allowed text-slate-500' : 'hover:bg-slate-800 text-slate-200',
-                option.value === value ? 'bg-sky-950/70 text-sky-400 font-medium' : ''
+                option.disabled ? 'opacity-40 cursor-not-allowed text-slate-400 dark:text-slate-500' : 'hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200',
+                option.value === value ? 'bg-sky-50 dark:bg-sky-950/70 text-sky-700 dark:text-sky-400 font-medium' : ''
               )}
             >
               <div className="flex items-center gap-2 truncate">
@@ -91,7 +91,7 @@ export const Dropdown: React.FC<DropdownProps> = ({
                 <span>{option.label}</span>
               </div>
               {option.badge && (
-                <span className="text-2xs bg-slate-800 text-slate-400 px-1.5 py-0.5 rounded">
+                <span className="text-2xs bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 px-1.5 py-0.5 rounded border border-slate-200 dark:border-transparent">
                   {option.badge}
                 </span>
               )}

@@ -18,33 +18,33 @@ export const UnauthorizedPage: React.FC<UnauthorizedPageProps> = ({
 
   return (
     <div className="min-h-[75vh] flex flex-col items-center justify-center p-6 text-center select-none font-sans">
-      <div className="w-full max-w-lg p-6 bg-slate-900 border border-red-900/60 rounded shadow-2xl space-y-4">
-        <div className="w-12 h-12 rounded bg-red-950/80 border border-red-800/80 flex items-center justify-center text-red-400 mx-auto">
+      <div className="w-full max-w-lg p-6 bg-white dark:bg-slate-900 border border-red-200 dark:border-red-900/60 rounded shadow-2xl space-y-4">
+        <div className="w-12 h-12 rounded bg-red-50 dark:bg-red-950/80 border border-red-200 dark:border-red-800/80 flex items-center justify-center text-red-600 dark:text-red-400 mx-auto">
           <ShieldAlert className="w-6 h-6" />
         </div>
 
         <div>
-          <span className="text-2xs font-mono bg-red-950 text-red-400 border border-red-800/80 px-2 py-0.5 rounded font-bold uppercase">
+          <span className="text-2xs font-mono bg-red-50 text-red-700 border border-red-200 dark:bg-red-950 dark:text-red-400 dark:border-red-800/80 px-2 py-0.5 rounded font-bold uppercase">
             HTTP 403 • ACCESS DENIED
           </span>
-          <h2 className="text-base font-bold text-slate-100 mt-2 font-mono">
+          <h2 className="text-base font-bold text-slate-900 dark:text-slate-100 mt-2 font-mono">
             Security Clearance Level Insufficient
           </h2>
-          <p className="text-2xs text-slate-400 mt-1 max-w-md mx-auto">
-            Your active persona <strong className="text-sky-300 font-mono">[{user?.role || 'Guest'}]</strong> does not possess the <code className="text-amber-400 font-mono">[{requiredPermission}]</code> clearance required to access <strong className="text-slate-200">{moduleName}</strong>.
+          <p className="text-2xs text-slate-600 dark:text-slate-400 mt-1 max-w-md mx-auto">
+            Your active persona <strong className="text-sky-700 dark:text-sky-300 font-mono">[{user?.role || 'Guest'}]</strong> does not possess the <code className="text-amber-700 dark:text-amber-400 font-mono">[{requiredPermission}]</code> clearance required to access <strong className="text-slate-900 dark:text-slate-200">{moduleName}</strong>.
           </p>
         </div>
 
-        <div className="p-3 bg-slate-950 rounded border border-slate-800 text-2xs font-mono text-left space-y-1">
-          <div className="flex justify-between text-slate-400">
+        <div className="p-3 bg-slate-50 dark:bg-slate-950 rounded border border-slate-200 dark:border-slate-800 text-2xs font-mono text-left space-y-1">
+          <div className="flex justify-between text-slate-500 dark:text-slate-400">
             <span>Logged User:</span>
-            <span className="text-slate-200 font-semibold">{user?.email}</span>
+            <span className="text-slate-800 dark:text-slate-200 font-semibold">{user?.email}</span>
           </div>
-          <div className="flex justify-between text-slate-400">
+          <div className="flex justify-between text-slate-500 dark:text-slate-400">
             <span>Clearance Tag:</span>
-            <span className="text-red-400 font-semibold">{user?.clearanceLevel}</span>
+            <span className="text-red-700 dark:text-red-400 font-semibold">{user?.clearanceLevel}</span>
           </div>
-          <div className="flex justify-between text-slate-400">
+          <div className="flex justify-between text-slate-500 dark:text-slate-400">
             <span>Violation Audit Event:</span>
             <span className="text-slate-500">AUDIT_EVT_UNAUTH_ACCESS_ATTEMPT</span>
           </div>

@@ -6,6 +6,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>ThreatLens AI — Malware Classification & Threat Detection Console</title>
     <meta name="description" content="Enterprise malware classification, static/dynamic sandbox analysis, and SOC threat intelligence platform." />
+    <script>
+      (function() {
+        try {
+          var saved = localStorage.getItem('threatlens_theme');
+          var theme = (saved === 'light' || saved === 'dark') ? saved : 'dark';
+          document.documentElement.classList.add(theme);
+          document.documentElement.setAttribute('data-theme', theme);
+        } catch(e) {}
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>

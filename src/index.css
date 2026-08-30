@@ -6,28 +6,108 @@
 
 :root {
   color-scheme: dark;
+  --background: #0B0F17;
+  --surface: #111827;
+  --surface-elevated: #161F30;
+  --surface-hover: #1E293B;
+  --border: #1F2937;
+  --border-medium: #374151;
+  --text-primary: #E2E8F0;
+  --text-secondary: #94A3B8;
+  --text-muted: #64748B;
+  --input-background: #0F172A;
+  --accent: #0284C7;
+  --accent-light: #38BDF8;
+  --success: #10B981;
+  --warning: #F59E0B;
+  --danger: #EF4444;
+  --info: #3B82F6;
+
+  /* Legacy variable aliases */
   --bg-primary: #0B0F17;
   --bg-panel: #111827;
   --bg-subpanel: #161F30;
   --border-subtle: #1F2937;
+  --text-dim: #64748B;
+}
+
+html.dark,
+[data-theme="dark"],
+.dark {
+  color-scheme: dark;
+  --background: #0B0F17;
+  --surface: #111827;
+  --surface-elevated: #161F30;
+  --surface-hover: #1E293B;
+  --border: #1F2937;
   --border-medium: #374151;
   --text-primary: #E2E8F0;
-  --text-muted: #94A3B8;
-  --text-dim: #64748B;
+  --text-secondary: #94A3B8;
+  --text-muted: #64748B;
+  --input-background: #0F172A;
   --accent: #0284C7;
+  --accent-light: #38BDF8;
+  --success: #10B981;
+  --warning: #F59E0B;
+  --danger: #EF4444;
+  --info: #3B82F6;
+
+  /* Legacy variable aliases */
+  --bg-primary: #0B0F17;
+  --bg-panel: #111827;
+  --bg-subpanel: #161F30;
+  --border-subtle: #1F2937;
+  --text-dim: #64748B;
+}
+
+html.light,
+[data-theme="light"],
+.light {
+  color-scheme: light;
+  --background: #F5F7FA;
+  --surface: #FFFFFF;
+  --surface-elevated: #FFFFFF;
+  --surface-hover: #F1F5F9;
+  --border: #E2E8F0;
+  --border-medium: #CBD5E1;
+  --text-primary: #0F172A;
+  --text-secondary: #334155;
+  --text-muted: #64748B;
+  --input-background: #FFFFFF;
+  --accent: #0284C7;
+  --accent-light: #0284C7;
+  --success: #059669;
+  --warning: #D97706;
+  --danger: #DC2626;
+  --info: #2563EB;
+
+  /* Legacy variable aliases */
+  --bg-primary: #F5F7FA;
+  --bg-panel: #FFFFFF;
+  --bg-subpanel: #FFFFFF;
+  --border-subtle: #E2E8F0;
+  --text-dim: #64748B;
+}
+
+html,
+body,
+#root {
+  min-height: 100vh;
+  width: 100%;
+  background-color: var(--background);
+  color: var(--text-primary);
 }
 
 body {
   margin: 0;
   padding: 0;
-  background-color: var(--bg-primary);
-  color: var(--text-primary);
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   overflow-x: hidden;
   font-size: 0.875rem;
   line-height: 1.4;
+  transition: background-color 0.15s ease, color 0.15s ease;
 }
 
 /* Dense Scrollbars for SOC Tables and Code Viewers */
@@ -36,14 +116,14 @@ body {
   height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: #0B0F17;
+  background: var(--background);
 }
 ::-webkit-scrollbar-thumb {
-  background: #1F2937;
+  background: var(--border);
   border-radius: 2px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #374151;
+  background: var(--border-medium);
 }
 
 /* Monospace font standard class */
@@ -57,9 +137,9 @@ body {
   font-size: 0.6875rem;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  color: #94A3B8;
-  border-bottom: 1px solid #1F2937;
-  background-color: #0F172A;
+  color: var(--text-muted);
+  border-bottom: 1px solid var(--border);
+  background-color: var(--surface-elevated);
   font-weight: 600;
   text-align: left;
 }
@@ -67,15 +147,16 @@ body {
 .soc-table td {
   padding: 0.5rem 0.75rem;
   font-size: 0.8125rem;
-  border-bottom: 1px solid #161F30;
+  border-bottom: 1px solid var(--border);
+  color: var(--text-primary);
 }
 
 .soc-table tr:hover td {
-  background-color: rgba(30, 41, 59, 0.4);
+  background-color: var(--surface-hover);
 }
 
 /* Subtle focus indicators */
 *:focus-visible {
-  outline: 1px solid #38BDF8;
+  outline: 1px solid var(--accent-light);
   outline-offset: 1px;
 }

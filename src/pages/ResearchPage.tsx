@@ -52,8 +52,8 @@ export const ResearchPage: React.FC = () => {
       header: 'Sample Binary & Type',
       render: (item) => (
         <div className="flex flex-col min-w-0 font-mono">
-          <span className="font-bold text-xs text-slate-100 truncate flex items-center gap-1.5">
-            <FileCode className="w-3.5 h-3.5 text-sky-400 shrink-0" />
+          <span className="font-bold text-xs text-slate-900 dark:text-slate-100 truncate flex items-center gap-1.5">
+            <FileCode className="w-3.5 h-3.5 text-sky-600 dark:text-sky-400 shrink-0" />
             <span>{item.fileName}</span>
           </span>
           <span className="text-2xs text-slate-500 mt-0.5">{item.type}</span>
@@ -64,7 +64,7 @@ export const ResearchPage: React.FC = () => {
       key: 'family',
       header: 'Threat Family',
       render: (item) => (
-        <span className="font-mono text-xs text-amber-300 font-semibold">{item.family}</span>
+        <span className="font-mono text-xs text-amber-700 dark:text-amber-300 font-semibold">{item.family}</span>
       ),
     },
     {
@@ -82,7 +82,7 @@ export const ResearchPage: React.FC = () => {
       key: 'yaraRule',
       header: 'Primary YARA Rule',
       render: (item) => (
-        <span className="font-mono text-2xs text-red-400 font-bold bg-red-950/60 border border-red-800/80 px-2 py-0.5 rounded">
+        <span className="font-mono text-2xs text-red-700 dark:text-red-400 font-bold bg-red-50 dark:bg-red-950/60 border border-red-200 dark:border-red-800/80 px-2 py-0.5 rounded">
           {item.yaraRule}
         </span>
       ),
@@ -91,7 +91,7 @@ export const ResearchPage: React.FC = () => {
       key: 'addedDate',
       header: 'Ingested Date',
       render: (item) => (
-        <span className="font-mono text-2xs text-slate-400">
+        <span className="font-mono text-2xs text-slate-500 dark:text-slate-400">
           {formatRelativeTime(item.addedDate)}
         </span>
       ),
@@ -126,13 +126,13 @@ export const ResearchPage: React.FC = () => {
   return (
     <div className="space-y-6 select-none font-sans">
       {/* Top Banner Header */}
-      <div className="p-3.5 bg-slate-900 border border-slate-800 rounded flex flex-col md:flex-row md:items-center justify-between gap-3">
+      <div className="p-3.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded flex flex-col md:flex-row md:items-center justify-between gap-3 shadow-2xs">
         <div>
-          <h1 className="text-sm font-bold tracking-wider font-mono text-slate-100 uppercase flex items-center gap-2">
-            <Database className="w-4 h-4 text-sky-400" />
+          <h1 className="text-sm font-bold tracking-wider font-mono text-slate-900 dark:text-slate-100 uppercase flex items-center gap-2">
+            <Database className="w-4 h-4 text-sky-600 dark:text-sky-400" />
             <span>Malware Research Corpus & Dataset Explorer</span>
           </h1>
-          <p className="text-2xs text-slate-400 font-mono mt-0.5">
+          <p className="text-2xs text-slate-500 dark:text-slate-400 font-mono mt-0.5">
             Structured Genetic Datasets • YARA Rule Corpus • Historical Malware Intelligence
           </p>
         </div>
@@ -148,17 +148,17 @@ export const ResearchPage: React.FC = () => {
       </div>
 
       {/* Dataset Filter Bar */}
-      <div className="p-3 bg-slate-900 border border-slate-800 rounded font-mono text-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+      <div className="p-3.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded font-mono text-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-2xs">
         <div className="flex items-center gap-2">
-          <Code2 className="w-4 h-4 text-amber-400" />
-          <span className="font-bold text-slate-200 uppercase">Search Research Corpus</span>
+          <Code2 className="w-4 h-4 text-amber-600 dark:text-amber-400" />
+          <span className="font-bold text-slate-800 dark:text-slate-200 uppercase">Search Research Corpus</span>
         </div>
 
         <Input
           placeholder="Filter dataset by name, hash, family, YARA rule..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          leftIcon={<Search className="w-3.5 h-3.5 text-slate-500" />}
+          leftIcon={<Search className="w-3.5 h-3.5 text-slate-400" />}
           onClear={() => setSearchQuery('')}
           className="w-80"
           isMonospace

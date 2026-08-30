@@ -1,4 +1,5 @@
 import React from 'react';
+import { ThemeProvider } from './context/ThemeContext';
 import { ThreatLensProvider, useThreatLens } from './context/ThreatLensContext';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { ToastProvider } from './components/ui/Toast';
@@ -25,7 +26,7 @@ const RouteDispatcher: React.FC = () => {
   // If loading auth state
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-[#0B0F17] flex items-center justify-center">
+      <div className="min-h-screen bg-threat-bg text-threat-text flex items-center justify-center">
         <LoadingState
           message="Verifying ThreatLens Security Session..."
           description="Authenticating JWT signature and evaluating RBAC permissions"
@@ -94,12 +95,14 @@ const RouteDispatcher: React.FC = () => {
 
 export default function App() {
   return (
-    <AuthProvider>
-      <ThreatLensProvider>
-        <ToastProvider>
-          <RouteDispatcher />
-        </ToastProvider>
-      </ThreatLensProvider>
-    </AuthProvider>
+    <ThemeProvider>
+      <AuthProvider>
+        <ThreatLensProvider>
+          <ToastProvider>
+            <RouteDispatcher />
+          </ToastProvider>
+        </ThreatLensProvider>
+      </AuthProvider>
+    </ThemeProvider>
   );
 }

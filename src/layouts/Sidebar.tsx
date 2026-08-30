@@ -40,38 +40,38 @@ export const Sidebar: React.FC = () => {
   const getBadgeStyle = (color?: SeverityLevel | 'neutral') => {
     switch (color) {
       case 'critical':
-        return 'bg-red-950 text-red-400 border-red-800/80 animate-pulse';
+        return 'bg-red-100 text-red-700 border-red-200 dark:bg-red-950 dark:text-red-400 dark:border-red-800/80 animate-pulse';
       case 'high':
-        return 'bg-orange-950 text-orange-400 border-orange-800/80';
+        return 'bg-orange-100 text-orange-800 border-orange-200 dark:bg-orange-950 dark:text-orange-400 dark:border-orange-800/80';
       case 'medium':
-        return 'bg-amber-950 text-amber-400 border-amber-800/80';
+        return 'bg-amber-100 text-amber-800 border-amber-200 dark:bg-amber-950 dark:text-amber-400 dark:border-amber-800/80';
       case 'info':
-        return 'bg-sky-950 text-sky-400 border-sky-800/80';
+        return 'bg-sky-100 text-sky-800 border-sky-200 dark:bg-sky-950 dark:text-sky-400 dark:border-sky-800/80';
       default:
-        return 'bg-slate-800 text-slate-400 border-slate-700';
+        return 'bg-slate-200 text-slate-700 border-slate-300 dark:bg-slate-800 dark:text-slate-400 dark:border-slate-700';
     }
   };
 
   return (
     <aside
       className={clsx(
-        'h-screen bg-slate-950 border-r border-slate-800 flex flex-col transition-all duration-200 select-none z-30 shrink-0 sticky top-0',
+        'h-screen bg-slate-50 dark:bg-slate-950 border-r border-slate-200 dark:border-slate-800 flex flex-col transition-all duration-200 select-none z-30 shrink-0 sticky top-0',
         sidebarCollapsed ? 'w-16' : 'w-60'
       )}
     >
       {/* Brand Header */}
-      <div className="h-13 border-b border-slate-800/80 flex items-center justify-between px-3.5 bg-slate-950/80">
+      <div className="h-13 border-b border-slate-200 dark:border-slate-800/80 flex items-center justify-between px-3.5 bg-white/90 dark:bg-slate-950/80">
         <div className="flex items-center gap-2.5 overflow-hidden">
-          <div className="w-8 h-8 rounded bg-sky-950/90 border border-sky-700/80 flex items-center justify-center text-sky-400 shrink-0 shadow-inner">
-            <Shield className="w-4 h-4 text-sky-400" />
+          <div className="w-8 h-8 rounded bg-sky-100 dark:bg-sky-950/90 border border-sky-300 dark:border-sky-700/80 flex items-center justify-center text-sky-600 dark:text-sky-400 shrink-0 shadow-xs">
+            <Shield className="w-4 h-4 text-sky-600 dark:text-sky-400" />
           </div>
           {!sidebarCollapsed && (
             <div className="flex flex-col min-w-0">
               <div className="flex items-center gap-1.5">
-                <span className="font-bold text-xs tracking-wider text-slate-100 uppercase font-mono">
+                <span className="font-bold text-xs tracking-wider text-slate-900 dark:text-slate-100 uppercase font-mono">
                   ThreatLens
                 </span>
-                <span className="text-2xs font-semibold px-1 py-0.2 rounded bg-sky-500/20 text-sky-300 border border-sky-500/30">
+                <span className="text-2xs font-semibold px-1 py-0.2 rounded bg-sky-100 text-sky-700 border border-sky-200 dark:bg-sky-500/20 dark:text-sky-300 dark:border-sky-500/30">
                   AI
                 </span>
               </div>
@@ -83,7 +83,7 @@ export const Sidebar: React.FC = () => {
         <button
           type="button"
           onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
-          className="text-slate-500 hover:text-slate-200 p-1 rounded hover:bg-slate-900 transition-colors"
+          className="text-slate-500 hover:text-slate-900 dark:hover:text-slate-200 p-1 rounded hover:bg-slate-200/60 dark:hover:bg-slate-900 transition-colors"
           title={sidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
         >
           {sidebarCollapsed ? (
@@ -96,12 +96,12 @@ export const Sidebar: React.FC = () => {
 
       {/* Role Indicator Banner */}
       {!sidebarCollapsed && (
-        <div className="px-3.5 py-2 border-b border-slate-900 bg-slate-900/40">
+        <div className="px-3.5 py-2 border-b border-slate-200 dark:border-slate-900 bg-slate-100/70 dark:bg-slate-900/40">
           <div className="text-2xs text-slate-500 uppercase tracking-widest font-mono font-medium">
             Active Persona
           </div>
-          <div className="text-xs text-sky-300 font-semibold truncate flex items-center gap-1.5 mt-0.5">
-            <span className="w-1.5 h-1.5 rounded-full bg-sky-400 shrink-0" />
+          <div className="text-xs text-sky-700 dark:text-sky-300 font-semibold truncate flex items-center gap-1.5 mt-0.5">
+            <span className="w-1.5 h-1.5 rounded-full bg-sky-500 dark:bg-sky-400 shrink-0" />
             <span>{user?.role || 'Guest'}</span>
           </div>
         </div>
@@ -124,15 +124,15 @@ export const Sidebar: React.FC = () => {
               className={clsx(
                 'w-full flex items-center gap-2.5 px-2.5 py-2 rounded text-xs transition-colors group relative font-medium text-left',
                 isActive
-                  ? 'bg-slate-900 text-sky-400 border border-slate-750 font-semibold'
-                  : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900/60 border border-transparent'
+                  ? 'bg-white dark:bg-slate-900 text-sky-600 dark:text-sky-400 border border-slate-200 dark:border-slate-750 font-semibold shadow-xs'
+                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-900/60 border border-transparent'
               )}
               title={sidebarCollapsed ? item.label : undefined}
             >
               <div
                 className={clsx(
                   'shrink-0 flex items-center justify-center',
-                  isActive ? 'text-sky-400' : 'text-slate-400 group-hover:text-slate-200'
+                  isActive ? 'text-sky-600 dark:text-sky-400' : 'text-slate-500 dark:text-slate-400 group-hover:text-slate-900 dark:group-hover:text-slate-200'
                 )}
               >
                 {ICON_MAP[item.icon] || <Terminal className="w-4 h-4" />}
@@ -155,7 +155,7 @@ export const Sidebar: React.FC = () => {
 
               {/* Collapsed Active Indicator Pill */}
               {sidebarCollapsed && isActive && (
-                <div className="absolute right-1 w-1 h-4 bg-sky-400 rounded-full" />
+                <div className="absolute right-1 w-1 h-4 bg-sky-500 dark:bg-sky-400 rounded-full" />
               )}
             </button>
           );
@@ -163,22 +163,22 @@ export const Sidebar: React.FC = () => {
       </nav>
 
       {/* Engine Status Bottom Panel */}
-      <div className="p-3 border-t border-slate-800/80 bg-slate-950/90 text-2xs font-mono">
+      <div className="p-3 border-t border-slate-200 dark:border-slate-800/80 bg-white/90 dark:bg-slate-950/90 text-2xs font-mono">
         {!sidebarCollapsed ? (
           <div className="space-y-2">
-            <div className="flex items-center justify-between text-slate-400">
+            <div className="flex items-center justify-between text-slate-600 dark:text-slate-400">
               <span className="flex items-center gap-1.5">
-                <Activity className="w-3.5 h-3.5 text-emerald-400" />
+                <Activity className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
                 <span>Sandbox Ingest</span>
               </span>
-              <span className="text-emerald-400 font-semibold">99.98%</span>
+              <span className="text-emerald-600 dark:text-emerald-400 font-semibold">99.98%</span>
             </div>
-            <div className="w-full bg-slate-900 h-1 rounded-full overflow-hidden">
+            <div className="w-full bg-slate-200 dark:bg-slate-900 h-1 rounded-full overflow-hidden">
               <div className="bg-emerald-500 h-full w-[99.9%]" />
             </div>
-            <div className="flex items-center justify-between text-slate-500 text-2xs pt-1 border-t border-slate-900">
+            <div className="flex items-center justify-between text-slate-500 text-2xs pt-1 border-t border-slate-200 dark:border-slate-900">
               <span>Auth Token</span>
-              <span className="text-emerald-400 font-semibold">TLS Active</span>
+              <span className="text-emerald-600 dark:text-emerald-400 font-semibold">TLS Active</span>
             </div>
           </div>
         ) : (

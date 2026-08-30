@@ -8,29 +8,24 @@ export default {
   theme: {
     extend: {
       colors: {
-        // SOC Dark Console Palette
+        // SOC & Enterprise Palette mapped to semantic CSS tokens
         threat: {
-          bg: '#0B0F17',         // Deepest background
-          card: '#111827',       // Elevated panel / card
-          subcard: '#161F30',    // Sub-panel / active row
-          border: '#1F2937',     // Base border
-          borderLight: '#374151',// Active border
-          muted: '#64748B',      // Secondary text
-          text: '#E2E8F0',       // Primary text
-          white: '#F8FAFC',      // High contrast text
-          accent: '#0284C7',     // Tactical Cyan / Blue Accent
-          accentLight: '#38BDF8',
+          bg: 'var(--background)',
+          card: 'var(--surface)',
+          subcard: 'var(--surface-elevated)',
+          border: 'var(--border)',
+          borderLight: 'var(--border-medium)',
+          muted: 'var(--text-muted)',
+          secondary: 'var(--text-secondary)',
+          text: 'var(--text-primary)',
+          accent: 'var(--accent)',
+          accentLight: 'var(--accent-light)',
           // Semantic Severity Colors
-          critical: '#EF4444',   // Red-500
-          criticalBg: 'rgba(239, 68, 68, 0.12)',
-          high: '#F97316',       // Orange-500
-          highBg: 'rgba(249, 115, 22, 0.12)',
-          medium: '#F59E0B',     // Amber-500
-          mediumBg: 'rgba(245, 158, 11, 0.12)',
-          low: '#10B981',        // Emerald-500
-          lowBg: 'rgba(16, 185, 129, 0.12)',
-          info: '#3B82F6',       // Blue-500
-          infoBg: 'rgba(59, 130, 246, 0.12)',
+          critical: 'var(--danger)',
+          high: 'var(--warning)',
+          medium: 'var(--warning)',
+          low: 'var(--success)',
+          info: 'var(--info)',
         }
       },
       fontFamily: {

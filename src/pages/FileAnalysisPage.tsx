@@ -95,13 +95,13 @@ export const FileAnalysisPage: React.FC = () => {
   return (
     <div className="space-y-6 select-none font-sans">
       {/* Header Banner */}
-      <div className="p-3.5 bg-slate-900 border border-slate-800 rounded flex flex-col md:flex-row md:items-center justify-between gap-3">
+      <div className="p-3.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded flex flex-col md:flex-row md:items-center justify-between gap-3 shadow-2xs">
         <div>
-          <h1 className="text-sm font-bold tracking-wider font-mono text-slate-100 uppercase flex items-center gap-2">
-            <Cpu className="w-4 h-4 text-sky-400" />
+          <h1 className="text-sm font-bold tracking-wider font-mono text-slate-900 dark:text-slate-100 uppercase flex items-center gap-2">
+            <Cpu className="w-4 h-4 text-sky-600 dark:text-sky-400" />
             <span>Static Malware Analysis & Payload Dissection</span>
           </h1>
-          <p className="text-2xs text-slate-400 font-mono mt-0.5">
+          <p className="text-2xs text-slate-500 dark:text-slate-400 font-mono mt-0.5">
             Client-Side Safe Parsing • Zero Binary Execution • PE / ELF / Office Macro / YARA Engine
           </p>
         </div>
@@ -120,11 +120,11 @@ export const FileAnalysisPage: React.FC = () => {
 
       {/* Upload & Validation Zone */}
       {pipelineState !== 'completed' && (
-        <div className="p-5 bg-slate-900 border border-slate-800 rounded space-y-4">
-          <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+        <div className="p-5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded space-y-4 shadow-2xs">
+          <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3">
             <div className="flex items-center gap-2">
-              <UploadCloud className="w-4 h-4 text-sky-400" />
-              <h2 className="text-xs font-semibold uppercase tracking-wider font-mono text-slate-100">
+              <UploadCloud className="w-4 h-4 text-sky-600 dark:text-sky-400" />
+              <h2 className="text-xs font-semibold uppercase tracking-wider font-mono text-slate-900 dark:text-slate-100">
                 Target Binary / Document Upload
               </h2>
             </div>
@@ -139,7 +139,7 @@ export const FileAnalysisPage: React.FC = () => {
               onDragOver={(e) => e.preventDefault()}
               onDrop={handleDrop}
               onClick={() => fileInputRef.current?.click()}
-              className="border border-dashed border-slate-750 hover:border-sky-600/70 rounded-lg p-8 text-center bg-slate-950/40 hover:bg-slate-950/70 transition-all cursor-pointer flex flex-col items-center justify-center gap-2"
+              className="border border-dashed border-slate-300 dark:border-slate-750 hover:border-sky-500 rounded-lg p-8 text-center bg-slate-50 dark:bg-slate-950/40 hover:bg-slate-100/80 dark:hover:bg-slate-950/70 transition-all cursor-pointer flex flex-col items-center justify-center gap-2"
             >
               <input
                 ref={fileInputRef}
@@ -147,8 +147,8 @@ export const FileAnalysisPage: React.FC = () => {
                 className="hidden"
                 onChange={(e) => e.target.files?.[0] && handleFileSelect(e.target.files[0])}
               />
-              <UploadCloud className="w-10 h-10 text-sky-400" />
-              <div className="text-xs text-slate-200 font-medium">
+              <UploadCloud className="w-10 h-10 text-sky-600 dark:text-sky-400" />
+              <div className="text-xs text-slate-800 dark:text-slate-200 font-medium">
                 Click or drag & drop suspicious payload here to initiate static disassembly
               </div>
               <div className="text-2xs text-slate-500 font-mono">
@@ -162,14 +162,14 @@ export const FileAnalysisPage: React.FC = () => {
             </div>
           ) : (
             /* Selected File Validation Box */
-            <div className="p-4 bg-slate-950 border border-slate-800 rounded space-y-3">
+            <div className="p-4 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded space-y-3">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="p-2 rounded bg-slate-900 border border-slate-750 text-sky-400">
+                  <div className="p-2 rounded bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-750 text-sky-600 dark:text-sky-400">
                     <FileCode className="w-5 h-5" />
                   </div>
                   <div>
-                    <h3 className="text-xs font-bold font-mono text-slate-100">{selectedFile.name}</h3>
+                    <h3 className="text-xs font-bold font-mono text-slate-900 dark:text-slate-100">{selectedFile.name}</h3>
                     <p className="text-2xs font-mono text-slate-500 mt-0.5">
                       Size: {formatBytes(selectedFile.size)} • Type: {selectedFile.type || 'Binary Stream'}
                     </p>
@@ -179,7 +179,7 @@ export const FileAnalysisPage: React.FC = () => {
                 <button
                   type="button"
                   onClick={handleReset}
-                  className="text-slate-500 hover:text-slate-200 p-1 rounded hover:bg-slate-900"
+                  className="text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 p-1 rounded hover:bg-slate-200 dark:hover:bg-slate-900"
                   title="Remove selected file"
                 >
                   <X className="w-4 h-4" />
@@ -187,17 +187,17 @@ export const FileAnalysisPage: React.FC = () => {
               </div>
 
               {/* Validation Status Pill */}
-              <div className="flex items-center justify-between pt-2 border-t border-slate-850 text-2xs font-mono">
-                <span className="text-slate-400 flex items-center gap-1.5">
+              <div className="flex items-center justify-between pt-2 border-t border-slate-200 dark:border-slate-850 text-2xs font-mono">
+                <span className="text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
                   {fileValidationState === 'validating' ? (
                     <>
-                      <div className="w-3 h-3 border border-sky-400 border-t-transparent rounded-full animate-spin" />
+                      <div className="w-3 h-3 border border-sky-500 border-t-transparent rounded-full animate-spin" />
                       <span>Validating file structure & magic checksum...</span>
                     </>
                   ) : (
                     <>
-                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
-                      <span className="text-emerald-400 font-semibold">Validation Passed: Valid PE Header Structure</span>
+                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
+                      <span className="text-emerald-700 dark:text-emerald-400 font-semibold">Validation Passed: Valid PE Header Structure</span>
                     </>
                   )}
                 </span>
@@ -217,8 +217,8 @@ export const FileAnalysisPage: React.FC = () => {
 
           {/* 10-Stage Explicit Analysis Pipeline Progress */}
           {pipelineState === 'running' && (
-            <div className="p-4 bg-slate-950 border border-sky-900/80 rounded space-y-3 animate-in fade-in duration-150">
-              <div className="flex items-center justify-between text-xs font-mono font-bold text-sky-400 border-b border-slate-850 pb-2">
+            <div className="p-4 bg-slate-50 dark:bg-slate-950 border border-sky-200 dark:border-sky-900/80 rounded space-y-3 animate-in fade-in duration-150">
+              <div className="flex items-center justify-between text-xs font-mono font-bold text-sky-700 dark:text-sky-400 border-b border-slate-200 dark:border-slate-850 pb-2">
                 <span className="flex items-center gap-2">
                   <Cpu className="w-4 h-4 animate-spin" />
                   <span>Executing 10-Stage Static Analysis Pipeline...</span>
@@ -235,19 +235,19 @@ export const FileAnalysisPage: React.FC = () => {
                       key={stageName}
                       className={`p-2 rounded border flex items-center justify-between transition-colors ${
                         isDone
-                          ? 'bg-slate-900/90 border-slate-800 text-slate-300'
+                          ? 'bg-white dark:bg-slate-900/90 border-slate-200 dark:border-slate-800 text-slate-800 dark:text-slate-300'
                           : isCurrent
-                          ? 'bg-sky-950/60 border-sky-500 text-sky-300 font-bold'
-                          : 'bg-slate-950/40 border-slate-900 text-slate-600'
+                          ? 'bg-sky-50 dark:bg-sky-950/60 border-sky-500 text-sky-800 dark:text-sky-300 font-bold shadow-2xs'
+                          : 'bg-slate-100/60 dark:bg-slate-950/40 border-slate-200 dark:border-slate-900 text-slate-400 dark:text-slate-600'
                       }`}
                     >
                       <span className="truncate">{idx + 1}. {stageName}</span>
                       {isDone ? (
-                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
                       ) : isCurrent ? (
-                        <div className="w-3 h-3 border border-sky-400 border-t-transparent rounded-full animate-spin shrink-0" />
+                        <div className="w-3 h-3 border border-sky-500 border-t-transparent rounded-full animate-spin shrink-0" />
                       ) : (
-                        <span className="text-slate-600">Queued</span>
+                        <span className="text-slate-400 dark:text-slate-600">Queued</span>
                       )}
                     </div>
                   );
@@ -262,15 +262,15 @@ export const FileAnalysisPage: React.FC = () => {
       {report && (
         <div className="space-y-5">
           {/* Top Overview & Risk Summary Box */}
-          <div className="p-5 bg-slate-900 border border-slate-800 rounded space-y-4">
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 border-b border-slate-800 pb-3">
+          <div className="p-5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded space-y-4 shadow-2xs">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 border-b border-slate-200 dark:border-slate-800 pb-3">
               <div>
                 <div className="flex items-center gap-2">
-                  <h2 className="text-sm font-bold font-mono text-slate-100">{report.fileName}</h2>
+                  <h2 className="text-sm font-bold font-mono text-slate-900 dark:text-slate-100">{report.fileName}</h2>
                   <Badge verdict={report.classification} size="sm">
                     {report.classification}
                   </Badge>
-                  <span className="text-xs font-mono font-bold text-red-400 bg-red-950/60 border border-red-800/80 px-2 py-0.5 rounded">
+                  <span className="text-xs font-mono font-bold text-red-700 dark:text-red-400 bg-red-50 dark:bg-red-950/60 border border-red-200 dark:border-red-800/80 px-2 py-0.5 rounded">
                     {report.threatFamily}
                   </span>
                 </div>
@@ -289,7 +289,7 @@ export const FileAnalysisPage: React.FC = () => {
             </div>
 
             {/* Quick Hashes Bar */}
-            <div className="p-3 bg-slate-950 rounded border border-slate-800 grid grid-cols-1 md:grid-cols-2 gap-3 text-2xs font-mono">
+            <div className="p-3 bg-slate-50 dark:bg-slate-950 rounded border border-slate-200 dark:border-slate-800 grid grid-cols-1 md:grid-cols-2 gap-3 text-2xs font-mono">
               <div className="flex items-center justify-between">
                 <span className="text-slate-500">SHA-256:</span>
                 <MonoText value={report.sha256} />
@@ -309,20 +309,20 @@ export const FileAnalysisPage: React.FC = () => {
             </div>
 
             {/* Recommended Action Box */}
-            <div className="p-3 bg-amber-950/20 border border-amber-800/60 rounded text-2xs font-mono flex items-start gap-2">
-              <ShieldAlert className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
+            <div className="p-3 bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800/60 rounded text-2xs font-mono flex items-start gap-2">
+              <ShieldAlert className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
               <div>
-                <span className="text-amber-400 font-bold uppercase block">Recommended Incident Response Action:</span>
-                <span className="text-amber-200/90">{report.recommendedAction}</span>
+                <span className="text-amber-800 dark:text-amber-400 font-bold uppercase block">Recommended Incident Response Action:</span>
+                <span className="text-amber-900 dark:text-amber-200/90">{report.recommendedAction}</span>
               </div>
             </div>
           </div>
 
           {/* Section 1: YARA Rule Matches */}
-          <div className="p-4 bg-slate-900 border border-slate-800 rounded space-y-3 font-mono">
-            <div className="flex items-center justify-between border-b border-slate-800 pb-2">
-              <h3 className="text-xs font-semibold uppercase tracking-wider text-slate-100 flex items-center gap-2">
-                <Terminal className="w-4 h-4 text-sky-400" />
+          <div className="p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded space-y-3 font-mono shadow-2xs">
+            <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-2">
+              <h3 className="text-xs font-semibold uppercase tracking-wider text-slate-900 dark:text-slate-100 flex items-center gap-2">
+                <Terminal className="w-4 h-4 text-sky-600 dark:text-sky-400" />
                 <span>YARA Rule Engine Matches ({report.yaraMatches.length})</span>
               </h3>
               <span className="text-2xs text-slate-500">Compiled Rule Corpus v24.2</span>
@@ -330,16 +330,16 @@ export const FileAnalysisPage: React.FC = () => {
 
             <div className="space-y-2">
               {report.yaraMatches.map((yara) => (
-                <div key={yara.ruleName} className="p-3 bg-slate-950 rounded border border-slate-800 space-y-1.5">
+                <div key={yara.ruleName} className="p-3 bg-slate-50 dark:bg-slate-950 rounded border border-slate-200 dark:border-slate-800 space-y-1.5">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                      <span className="text-xs font-bold text-red-400">{yara.ruleName}</span>
+                      <span className="text-xs font-bold text-red-700 dark:text-red-400">{yara.ruleName}</span>
                       <Badge severity={yara.severity} size="xs">{yara.severity}</Badge>
                       <span className="text-2xs text-slate-500">[{yara.category}]</span>
                     </div>
-                    <span className="text-2xs text-emerald-400 font-bold">MATCHED</span>
+                    <span className="text-2xs text-emerald-700 dark:text-emerald-400 font-bold">MATCHED</span>
                   </div>
-                  <p className="text-2xs text-slate-400">{yara.description}</p>
+                  <p className="text-2xs text-slate-600 dark:text-slate-400">{yara.description}</p>
                   <div className="flex flex-wrap gap-1.5 pt-1">
                     {yara.matchedStrings.map((str, i) => (
                       <MonoText key={i} value={str} highlight />
@@ -353,17 +353,17 @@ export const FileAnalysisPage: React.FC = () => {
           {/* Section 2: Static Indicators (Strings, PowerShell, URLs, IPs) */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 font-mono">
             {/* Suspicious Strings & Obfuscated PowerShell */}
-            <div className="p-4 bg-slate-900 border border-slate-800 rounded space-y-3">
-              <div className="flex items-center justify-between border-b border-slate-800 pb-2">
-                <h3 className="text-xs font-semibold uppercase tracking-wider text-slate-100 flex items-center gap-2">
-                  <Code2 className="w-4 h-4 text-amber-400" />
+            <div className="p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded space-y-3 shadow-2xs">
+              <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-2">
+                <h3 className="text-xs font-semibold uppercase tracking-wider text-slate-900 dark:text-slate-100 flex items-center gap-2">
+                  <Code2 className="w-4 h-4 text-amber-600 dark:text-amber-400" />
                   <span>Obfuscated PowerShell & Suspicious Commands</span>
                 </h3>
               </div>
 
               <div className="space-y-2">
                 {report.powershellIndicators.map((ps, idx) => (
-                  <div key={idx} className="p-2.5 bg-slate-950 rounded border border-amber-900/60 text-2xs text-amber-300 break-all">
+                  <div key={idx} className="p-2.5 bg-amber-50/70 dark:bg-slate-950 rounded border border-amber-200 dark:border-amber-900/60 text-2xs text-amber-900 dark:text-amber-300 break-all font-mono">
                     <code>{ps}</code>
                   </div>
                 ))}
@@ -373,9 +373,9 @@ export const FileAnalysisPage: React.FC = () => {
                 <span className="text-2xs text-slate-500 uppercase font-semibold block mb-1.5">
                   Extracted Suspicious Strings ({report.suspiciousStrings.length}):
                 </span>
-                <div className="p-2.5 bg-slate-950 rounded border border-slate-800 max-h-36 overflow-y-auto space-y-1 text-2xs text-slate-300">
+                <div className="p-2.5 bg-slate-50 dark:bg-slate-950 rounded border border-slate-200 dark:border-slate-800 max-h-36 overflow-y-auto space-y-1 text-2xs text-slate-700 dark:text-slate-300">
                   {report.suspiciousStrings.map((s, i) => (
-                    <div key={i} className="truncate select-all hover:text-sky-300">
+                    <div key={i} className="truncate select-all hover:text-sky-600 dark:hover:text-sky-300">
                       • {s}
                     </div>
                   ))}
@@ -384,10 +384,10 @@ export const FileAnalysisPage: React.FC = () => {
             </div>
 
             {/* Extracted C2 URLs & IP Addresses */}
-            <div className="p-4 bg-slate-900 border border-slate-800 rounded space-y-3">
-              <div className="flex items-center justify-between border-b border-slate-800 pb-2">
-                <h3 className="text-xs font-semibold uppercase tracking-wider text-slate-100 flex items-center gap-2">
-                  <Network className="w-4 h-4 text-sky-400" />
+            <div className="p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded space-y-3 shadow-2xs">
+              <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-2">
+                <h3 className="text-xs font-semibold uppercase tracking-wider text-slate-900 dark:text-slate-100 flex items-center gap-2">
+                  <Network className="w-4 h-4 text-sky-600 dark:text-sky-400" />
                   <span>Extracted C2 Network IOCs</span>
                 </h3>
               </div>
@@ -395,7 +395,7 @@ export const FileAnalysisPage: React.FC = () => {
               <div className="space-y-2 text-2xs">
                 <span className="text-slate-500 uppercase font-semibold block">C2 Dropper URLs:</span>
                 {report.extractedUrls.map((url) => (
-                  <div key={url} className="p-2 bg-slate-950 rounded border border-slate-800 flex items-center justify-between">
+                  <div key={url} className="p-2 bg-slate-50 dark:bg-slate-950 rounded border border-slate-200 dark:border-slate-800 flex items-center justify-between">
                     <MonoText value={url} highlight />
                     <Button variant="ghost" size="xs" onClick={() => alert(`C2 domain ${url} submitted to firewall blocklist`)}>
                       Block
@@ -405,7 +405,7 @@ export const FileAnalysisPage: React.FC = () => {
 
                 <span className="text-slate-500 uppercase font-semibold block pt-2">Extracted C2 IP Addresses:</span>
                 {report.extractedIps.map((ip) => (
-                  <div key={ip} className="p-2 bg-slate-950 rounded border border-slate-800 flex items-center justify-between">
+                  <div key={ip} className="p-2 bg-slate-50 dark:bg-slate-950 rounded border border-slate-200 dark:border-slate-800 flex items-center justify-between">
                     <MonoText value={ip} highlight />
                     <span className="text-2xs text-slate-500">ASN 49505 Hostkey</span>
                   </div>
@@ -415,16 +415,16 @@ export const FileAnalysisPage: React.FC = () => {
           </div>
 
           {/* Section 3: PE Metadata & Sections Entropy */}
-          <div className="p-4 bg-slate-900 border border-slate-800 rounded space-y-3 font-mono">
-            <div className="flex items-center justify-between border-b border-slate-800 pb-2">
-              <h3 className="text-xs font-semibold uppercase tracking-wider text-slate-100 flex items-center gap-2">
-                <Layers className="w-4 h-4 text-sky-400" />
+          <div className="p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded space-y-3 font-mono shadow-2xs">
+            <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-2">
+              <h3 className="text-xs font-semibold uppercase tracking-wider text-slate-900 dark:text-slate-100 flex items-center gap-2">
+                <Layers className="w-4 h-4 text-sky-600 dark:text-sky-400" />
                 <span>PE Headers & Section Entropy Analysis</span>
               </h3>
               <span className="text-2xs text-slate-500">{report.peSections.length} Sections</span>
             </div>
 
-            <div className="border border-slate-800 rounded bg-slate-950 overflow-x-auto">
+            <div className="border border-slate-200 dark:border-slate-800 rounded bg-white dark:bg-slate-950 overflow-x-auto">
               <table className="w-full text-left border-collapse soc-table">
                 <thead>
                   <tr>
@@ -437,8 +437,8 @@ export const FileAnalysisPage: React.FC = () => {
                 </thead>
                 <tbody>
                   {report.peSections.map((sec) => (
-                    <tr key={sec.name} className="hover:bg-slate-900/60">
-                      <td className="font-bold text-sky-300">{sec.name}</td>
+                    <tr key={sec.name} className="hover:bg-slate-50 dark:hover:bg-slate-900/60">
+                      <td className="font-bold text-sky-700 dark:text-sky-300">{sec.name}</td>
                       <td>{formatBytes(sec.virtualSize)}</td>
                       <td>{formatBytes(sec.rawSize)}</td>
                       <td><EntropyBar entropy={sec.entropy} /></td>
@@ -456,11 +456,11 @@ export const FileAnalysisPage: React.FC = () => {
               </span>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                 {report.importedDlls.map((dllGroup) => (
-                  <div key={dllGroup.dll} className="p-3 bg-slate-950 rounded border border-slate-850 space-y-1 text-2xs">
-                    <span className="text-sky-400 font-bold block">{dllGroup.dll}</span>
-                    <div className="space-y-0.5 text-slate-300">
+                  <div key={dllGroup.dll} className="p-3 bg-slate-50 dark:bg-slate-950 rounded border border-slate-200 dark:border-slate-850 space-y-1 text-2xs">
+                    <span className="text-sky-700 dark:text-sky-400 font-bold block">{dllGroup.dll}</span>
+                    <div className="space-y-0.5 text-slate-700 dark:text-slate-300">
                       {dllGroup.functions.map((fn) => (
-                        <div key={fn} className="hover:text-amber-400">• {fn}</div>
+                        <div key={fn} className="hover:text-amber-700 dark:hover:text-amber-400">• {fn}</div>
                       ))}
                     </div>
                   </div>

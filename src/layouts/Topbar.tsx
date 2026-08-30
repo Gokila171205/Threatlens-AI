@@ -8,9 +8,12 @@ import {
   CheckCircle,
   LogOut,
   User,
+  Sun,
+  Moon
 } from 'lucide-react';
 import { useThreatLens } from '../context/ThreatLensContext';
 import { useAuth } from '../context/AuthContext';
+import { useTheme } from '../context/ThemeContext';
 import { getRouteTitle, getRouteDescription } from '../routes/routes';
 import type { UserRole } from '../types';
 import { formatRelativeTime } from '../utils/formatters';
@@ -35,6 +38,7 @@ export const Topbar: React.FC = () => {
   } = useThreatLens();
 
   const { user, logout, loginAsRole } = useAuth();
+  const { theme, toggleTheme } = useTheme();
 
   const [roleDropdownOpen, setRoleDropdownOpen] = useState(false);
   const [notifDropdownOpen, setNotifDropdownOpen] = useState(false);
@@ -69,36 +73,51 @@ export const Topbar: React.FC = () => {
   };
 
   return (
-    <header className="h-13 border-b border-slate-800 bg-slate-950/90 sticky top-0 z-20 px-4 flex items-center justify-between gap-4 backdrop-blur-sm">
+    <header className="h-13 border-b border-slate-200 dark:border-slate-800 bg-white/90 dark:bg-slate-950/90 sticky top-0 z-20 px-4 flex items-center justify-between gap-4 backdrop-blur-sm transition-colors">
       {/* Left: Breadcrumbs & Page Description */}
       <div className="flex items-center gap-3 min-w-0">
         <div className="flex flex-col">
           <div className="flex items-center gap-2 text-2xs font-mono text-slate-500">
-            <span className="hover:text-slate-400 cursor-pointer">ThreatLens AI</span>
+            <span className="hover:text-slate-700 dark:hover:text-slate-400 cursor-pointer">ThreatLens AI</span>
             <span>/</span>
-            <span className="text-slate-300 font-semibold">{pageTitle}</span>
+            <span className="text-slate-800 dark:text-slate-300 font-semibold">{pageTitle}</span>
           </div>
-          <span className="text-xs font-semibold text-slate-100 truncate tracking-tight">
+          <span className="text-xs font-semibold text-slate-900 dark:text-slate-100 truncate tracking-tight">
             {pageDesc}
           </span>
         </div>
       </div>
 
       {/* Center/Right: Actions & Controls */}
-      <div className="flex items-center gap-3 shrink-0">
+      <div className="flex items-center gap-2.5 shrink-0">
         {/* Global Quick Search Button */}
         <button
           type="button"
           onClick={() => setIsSearchModalOpen(true)}
-          className="hidden md:flex items-center gap-2 bg-slate-900 border border-slate-800 hover:border-slate-700 px-3 py-1.5 rounded text-xs text-slate-400 hover:text-slate-200 transition-colors w-64 justify-between"
+          className="hidden md:flex items-center gap-2 bg-slate-100 dark:bg-slate-900 border border-slate-300 dark:border-slate-800 hover:border-slate-400 dark:hover:border-slate-700 px-3 py-1.5 rounded text-xs text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 transition-colors w-64 justify-between"
         >
           <div className="flex items-center gap-2">
             <Search className="w-3.5 h-3.5 text-slate-500" />
-            <span className="text-2xs font-mono text-slate-400">Search hashes, IOCs, CVEs...</span>
+            <span className="text-2xs font-mono text-slate-500 dark:text-slate-400 truncate">Search hashes, IOCs...</span>
           </div>
-          <kbd className="text-2xs font-mono bg-slate-950 text-slate-400 border border-slate-800 px-1.5 py-0.2 rounded">
+          <kbd className="text-2xs font-mono bg-white dark:bg-slate-950 text-slate-600 dark:text-slate-400 border border-slate-300 dark:border-slate-800 px-1.5 py-0.2 rounded shadow-2xs">
             Ctrl+K
           </kbd>
+        </button>
+
+        {/* Theme Switcher Toggle */}
+        <button
+          type="button"
+          onClick={toggleTheme}
+          className="p-1.5 rounded text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-900 border border-slate-300 dark:border-slate-800 transition-colors flex items-center justify-center"
+          title={theme === 'dark' ? 'Switch to Light Theme' : 'Switch to Dark Theme'}
+          aria-label={theme === 'dark' ? 'Switch to Light Theme' : 'Switch to Dark Theme'}
+        >
+          {theme === 'dark' ? (
+            <Moon className="w-4 h-4 text-sky-400" />
+          ) : (
+            <Sun className="w-4 h-4 text-amber-500" />
+          )}
         </button>
 
         {/* Live Stream Telemetry Toggle */}
@@ -107,12 +126,12 @@ export const Topbar: React.FC = () => {
           onClick={() => setIsStreamLive(!isStreamLive)}
           className={`flex items-center gap-1.5 px-2.5 py-1 rounded text-2xs font-mono border transition-colors ${
             isStreamLive
-              ? 'bg-emerald-950/50 border-emerald-800 text-emerald-400'
-              : 'bg-slate-900 border-slate-800 text-slate-500 hover:text-slate-300'
+              ? 'bg-emerald-50 dark:bg-emerald-950/50 border-emerald-300 dark:border-emerald-800 text-emerald-700 dark:text-emerald-400'
+              : 'bg-slate-100 dark:bg-slate-900 border-slate-300 dark:border-slate-800 text-slate-600 dark:text-slate-500 hover:text-slate-900 dark:hover:text-slate-300'
           }`}
           title="Toggle live telemetry feed"
         >
-          <Radio className={`w-3 h-3 ${isStreamLive ? 'animate-pulse text-emerald-400' : 'text-slate-500'}`} />
+          <Radio className={`w-3 h-3 ${isStreamLive ? 'animate-pulse text-emerald-600 dark:text-emerald-400' : 'text-slate-500'}`} />
           <span className="font-semibold">{isStreamLive ? 'INGEST LIVE' : 'INGEST PAUSED'}</span>
         </button>
 
@@ -121,7 +140,7 @@ export const Topbar: React.FC = () => {
           <button
             type="button"
             onClick={() => setNotifDropdownOpen(!notifDropdownOpen)}
-            className="p-1.5 rounded text-slate-400 hover:text-slate-200 hover:bg-slate-900 border border-slate-800/80 relative transition-colors"
+            className="p-1.5 rounded text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-900 border border-slate-300 dark:border-slate-800/80 relative transition-colors"
             title="System & Threat Notifications"
           >
             <Bell className="w-4 h-4" />
@@ -133,16 +152,16 @@ export const Topbar: React.FC = () => {
           </button>
 
           {notifDropdownOpen && (
-            <div className="absolute right-0 mt-2 w-80 bg-slate-900 border border-slate-800 rounded shadow-2xl py-1 z-50 animate-in fade-in-50 duration-100">
-              <div className="px-3 py-2 border-b border-slate-800 flex items-center justify-between">
-                <span className="text-xs font-semibold text-slate-200 uppercase font-mono">
+            <div className="absolute right-0 mt-2 w-80 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded shadow-xl py-1 z-50 animate-in fade-in-50 duration-100">
+              <div className="px-3 py-2 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between bg-slate-50 dark:bg-slate-950/50">
+                <span className="text-xs font-semibold text-slate-800 dark:text-slate-200 uppercase font-mono">
                   System Intelligence Feed
                 </span>
                 <span className="text-2xs text-slate-500 font-mono">
                   {unreadCount} unread
                 </span>
               </div>
-              <div className="max-h-72 overflow-y-auto divide-y divide-slate-850">
+              <div className="max-h-72 overflow-y-auto divide-y divide-slate-100 dark:divide-slate-800">
                 {notifications.length === 0 ? (
                   <div className="p-4 text-center text-xs text-slate-500">
                     No new intelligence alerts
@@ -152,17 +171,17 @@ export const Topbar: React.FC = () => {
                     <div
                       key={notif.id}
                       onClick={() => markAsRead(notif.id)}
-                      className={`p-3 text-left hover:bg-slate-850/60 cursor-pointer transition-colors ${
-                        !notif.read ? 'bg-sky-950/20' : ''
+                      className={`p-3 text-left hover:bg-slate-50 dark:hover:bg-slate-800/60 cursor-pointer transition-colors ${
+                        !notif.read ? 'bg-sky-50/70 dark:bg-sky-950/20' : ''
                       }`}
                     >
                       <div className="flex items-center justify-between">
-                        <h4 className="text-xs font-medium text-slate-200">{notif.title}</h4>
+                        <h4 className="text-xs font-medium text-slate-900 dark:text-slate-200">{notif.title}</h4>
                         {!notif.read && (
-                          <span className="w-1.5 h-1.5 rounded-full bg-sky-400" />
+                          <span className="w-1.5 h-1.5 rounded-full bg-sky-500 dark:bg-sky-400" />
                         )}
                       </div>
-                      <p className="text-2xs text-slate-400 mt-1 line-clamp-2">
+                      <p className="text-2xs text-slate-600 dark:text-slate-400 mt-1 line-clamp-2">
                         {notif.message}
                       </p>
                       <span className="text-2xs text-slate-500 font-mono mt-1.5 block">
@@ -181,9 +200,9 @@ export const Topbar: React.FC = () => {
           <button
             type="button"
             onClick={() => setRoleDropdownOpen(!roleDropdownOpen)}
-            className="flex items-center gap-2 px-2.5 py-1.5 rounded bg-slate-900 border border-slate-800 hover:border-slate-700 text-xs text-slate-200 transition-colors"
+            className="flex items-center gap-2 px-2.5 py-1.5 rounded bg-slate-100 dark:bg-slate-900 border border-slate-300 dark:border-slate-800 hover:border-slate-400 dark:hover:border-slate-700 text-xs text-slate-800 dark:text-slate-200 transition-colors"
           >
-            <Shield className="w-3.5 h-3.5 text-sky-400" />
+            <Shield className="w-3.5 h-3.5 text-sky-600 dark:text-sky-400" />
             <div className="flex flex-col text-left">
               <span className="text-2xs text-slate-500 leading-none">Role</span>
               <span className="text-xs font-semibold leading-tight">{user?.role || 'Guest'}</span>
@@ -192,8 +211,8 @@ export const Topbar: React.FC = () => {
           </button>
 
           {roleDropdownOpen && (
-            <div className="absolute right-0 mt-2 w-52 bg-slate-900 border border-slate-750 rounded shadow-2xl py-1 z-50">
-              <div className="px-3 py-1.5 text-2xs text-slate-500 uppercase font-mono border-b border-slate-800 font-medium">
+            <div className="absolute right-0 mt-2 w-52 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-750 rounded shadow-xl py-1 z-50">
+              <div className="px-3 py-1.5 text-2xs text-slate-500 uppercase font-mono border-b border-slate-200 dark:border-slate-800 font-medium bg-slate-50 dark:bg-slate-950/40">
                 Switch Operational Role
               </div>
               {ALL_ROLES.map((r) => (
@@ -206,12 +225,12 @@ export const Topbar: React.FC = () => {
                   }}
                   className={`w-full flex items-center justify-between px-3 py-2 text-xs text-left transition-colors ${
                     user?.role === r
-                      ? 'bg-sky-950/70 text-sky-400 font-semibold'
-                      : 'text-slate-300 hover:bg-slate-800'
+                      ? 'bg-sky-50 dark:bg-sky-950/70 text-sky-600 dark:text-sky-400 font-semibold'
+                      : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'
                   }`}
                 >
                   <span>{r}</span>
-                  {user?.role === r && <CheckCircle className="w-3.5 h-3.5 text-sky-400" />}
+                  {user?.role === r && <CheckCircle className="w-3.5 h-3.5 text-sky-600 dark:text-sky-400" />}
                 </button>
               ))}
             </div>
@@ -219,27 +238,27 @@ export const Topbar: React.FC = () => {
         </div>
 
         {/* Profile & Session Dropdown Menu */}
-        <div className="relative pl-2 border-l border-slate-800" ref={profileMenuRef}>
+        <div className="relative pl-2 border-l border-slate-300 dark:border-slate-800" ref={profileMenuRef}>
           <button
             type="button"
             onClick={() => setProfileMenuOpen(!profileMenuOpen)}
             className="flex items-center gap-2 text-left hover:opacity-90 transition-opacity"
           >
-            <div className="w-7 h-7 rounded bg-slate-800 border border-slate-700 flex items-center justify-center text-slate-300 font-mono text-xs font-semibold">
+            <div className="w-7 h-7 rounded bg-slate-200 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 flex items-center justify-center text-slate-800 dark:text-slate-300 font-mono text-xs font-semibold">
               {user?.avatarInitials || 'AR'}
             </div>
             <div className="hidden xl:flex flex-col">
-              <span className="text-xs font-medium text-slate-200">{user?.name || 'Alex Rivera'}</span>
-              <span className="text-2xs font-mono text-emerald-400">{user?.clearanceLevel || 'DEFCON-2'}</span>
+              <span className="text-xs font-medium text-slate-900 dark:text-slate-200">{user?.name || 'Alex Rivera'}</span>
+              <span className="text-2xs font-mono text-emerald-600 dark:text-emerald-400">{user?.clearanceLevel || 'DEFCON-2'}</span>
             </div>
           </button>
 
           {profileMenuOpen && (
-            <div className="absolute right-0 mt-2 w-56 bg-slate-900 border border-slate-750 rounded shadow-2xl py-1 z-50 animate-in fade-in-50 duration-100">
-              <div className="px-3 py-2 border-b border-slate-800">
-                <p className="text-xs font-semibold text-slate-100">{user?.name}</p>
-                <p className="text-2xs text-slate-400 font-mono truncate">{user?.email}</p>
-                <span className="text-2xs text-emerald-400 font-mono font-bold mt-1 block">
+            <div className="absolute right-0 mt-2 w-56 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-750 rounded shadow-xl py-1 z-50 animate-in fade-in-50 duration-100">
+              <div className="px-3 py-2 border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/40">
+                <p className="text-xs font-semibold text-slate-900 dark:text-slate-100">{user?.name}</p>
+                <p className="text-2xs text-slate-500 dark:text-slate-400 font-mono truncate">{user?.email}</p>
+                <span className="text-2xs text-emerald-600 dark:text-emerald-400 font-mono font-bold mt-1 block">
                   ● {user?.role}
                 </span>
               </div>
@@ -250,17 +269,17 @@ export const Topbar: React.FC = () => {
                     setProfileMenuOpen(false);
                     navigate('/profile');
                   }}
-                  className="w-full flex items-center gap-2 px-3 py-2 text-xs text-slate-300 hover:bg-slate-800 text-left"
+                  className="w-full flex items-center gap-2 px-3 py-2 text-xs text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 text-left"
                 >
-                  <User className="w-3.5 h-3.5 text-sky-400" />
+                  <User className="w-3.5 h-3.5 text-sky-600 dark:text-sky-400" />
                   <span>Analyst Profile & Keys</span>
                 </button>
               </div>
-              <div className="border-t border-slate-800 pt-1">
+              <div className="border-t border-slate-200 dark:border-slate-800 pt-1">
                 <button
                   type="button"
                   onClick={handleLogout}
-                  className="w-full flex items-center gap-2 px-3 py-2 text-xs text-red-400 hover:bg-red-950/40 text-left font-medium"
+                  className="w-full flex items-center gap-2 px-3 py-2 text-xs text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/40 text-left font-medium"
                 >
                   <LogOut className="w-3.5 h-3.5" />
                   <span>Sign Out Session</span>

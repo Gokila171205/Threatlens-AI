@@ -38,8 +38,8 @@ export const MonoText: React.FC<MonoTextProps> = ({
       className={clsx(
         'inline-flex items-center gap-1.5 font-mono text-2xs px-1.5 py-0.5 rounded transition-colors group select-all',
         highlight
-          ? 'bg-sky-950/60 text-sky-300 border border-sky-800/60'
-          : 'bg-slate-900 text-slate-300 border border-slate-800/80',
+          ? 'bg-sky-50 text-sky-800 border border-sky-200 dark:bg-sky-950/60 dark:text-sky-300 dark:border-sky-800/60'
+          : 'bg-slate-100 text-slate-800 border border-slate-200 dark:bg-slate-900 dark:text-slate-300 dark:border-slate-800/80',
         className
       )}
       title={value}
@@ -49,11 +49,11 @@ export const MonoText: React.FC<MonoTextProps> = ({
         <button
           type="button"
           onClick={handleCopy}
-          className="opacity-0 group-hover:opacity-100 focus:opacity-100 transition-opacity text-slate-400 hover:text-slate-200"
+          className="opacity-0 group-hover:opacity-100 focus:opacity-100 transition-opacity text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200"
           title="Copy to clipboard"
         >
           {copied ? (
-            <Check className="w-3 h-3 text-emerald-400" />
+            <Check className="w-3 h-3 text-emerald-600 dark:text-emerald-400" />
           ) : (
             <Copy className="w-3 h-3" />
           )}

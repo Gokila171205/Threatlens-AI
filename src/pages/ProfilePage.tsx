@@ -38,34 +38,34 @@ export const ProfilePage: React.FC = () => {
   return (
     <div className="space-y-6">
       {/* Analyst Credentials Card */}
-      <div className="p-5 bg-slate-900 border border-slate-800 rounded space-y-4">
-        <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+      <div className="p-5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded space-y-4 shadow-2xs">
+        <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3">
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded bg-sky-950 border border-sky-700/80 flex items-center justify-center text-sky-400 font-mono text-base font-bold">
+            <div className="w-12 h-12 rounded bg-sky-100 dark:bg-sky-950 border border-sky-300 dark:border-sky-700/80 flex items-center justify-center text-sky-700 dark:text-sky-400 font-mono text-base font-bold">
               {currentUser.name.split(' ').map((n) => n[0]).join('')}
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h2 className="text-sm font-bold text-slate-100">{currentUser.name}</h2>
-                <span className="text-2xs font-mono bg-emerald-950 text-emerald-400 border border-emerald-800/80 px-2 py-0.5 rounded font-bold">
+                <h2 className="text-sm font-bold text-slate-900 dark:text-slate-100">{currentUser.name}</h2>
+                <span className="text-2xs font-mono bg-emerald-50 text-emerald-800 border border-emerald-200 dark:bg-emerald-950 dark:text-emerald-400 dark:border-emerald-800/80 px-2 py-0.5 rounded font-bold">
                   {currentUser.clearanceLevel}
                 </span>
               </div>
-              <p className="text-2xs font-mono text-slate-400 mt-0.5">
+              <p className="text-2xs font-mono text-slate-500 dark:text-slate-400 mt-0.5">
                 {currentUser.email} • {currentUser.department}
               </p>
             </div>
           </div>
 
           <div className="text-right text-2xs font-mono text-slate-500">
-            <div>User ID: <span className="text-slate-300">{currentUser.id}</span></div>
-            <div>Session: <span className="text-emerald-400 font-semibold">Active (TLS 1.3 / MFA Verified)</span></div>
+            <div>User ID: <span className="text-slate-800 dark:text-slate-300 font-semibold">{currentUser.id}</span></div>
+            <div>Session: <span className="text-emerald-700 dark:text-emerald-400 font-semibold">Active (TLS 1.3 / MFA Verified)</span></div>
           </div>
         </div>
 
         {/* API Tokens & Clearance info */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-2xs font-mono">
-          <div className="p-3 bg-slate-950 rounded border border-slate-800 space-y-1">
+          <div className="p-3 bg-slate-50 dark:bg-slate-950 rounded border border-slate-200 dark:border-slate-800 space-y-1">
             <span className="text-slate-500 block uppercase">Analyst REST API Key</span>
             <div className="flex items-center justify-between">
               <MonoText value="tl_live_99af081b29efb7189c4501a4e" />
@@ -75,11 +75,11 @@ export const ProfilePage: React.FC = () => {
             </div>
           </div>
 
-          <div className="p-3 bg-slate-950 rounded border border-slate-800 space-y-1">
+          <div className="p-3 bg-slate-50 dark:bg-slate-950 rounded border border-slate-200 dark:border-slate-800 space-y-1">
             <span className="text-slate-500 block uppercase">Hardware Security Token</span>
             <div className="flex items-center justify-between">
-              <span className="text-slate-300">YubiKey 5 FIPS (SN: 9812401)</span>
-              <span className="text-emerald-400 font-bold">● Valid</span>
+              <span className="text-slate-800 dark:text-slate-300 font-semibold">YubiKey 5 FIPS (SN: 9812401)</span>
+              <span className="text-emerald-700 dark:text-emerald-400 font-bold">● Valid</span>
             </div>
           </div>
         </div>
@@ -89,8 +89,8 @@ export const ProfilePage: React.FC = () => {
       <div className="space-y-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Shield className="w-4 h-4 text-sky-400" />
-            <h3 className="text-xs font-semibold uppercase tracking-wider font-mono text-slate-100">
+            <Shield className="w-4 h-4 text-sky-600 dark:text-sky-400" />
+            <h3 className="text-xs font-semibold uppercase tracking-wider font-mono text-slate-900 dark:text-slate-100">
               Role-Aware Navigation & Permissions Selector
             </h3>
           </div>
@@ -108,16 +108,16 @@ export const ProfilePage: React.FC = () => {
                 onClick={() => setActiveRole(item.role)}
                 className={`p-4 rounded border transition-all cursor-pointer space-y-2.5 ${
                   isActive
-                    ? 'bg-sky-950/30 border-sky-500 shadow-md ring-1 ring-sky-500/50'
-                    : 'bg-slate-900/80 hover:bg-slate-850 border-slate-800 hover:border-slate-700'
+                    ? 'bg-sky-50 dark:bg-sky-950/30 border-sky-500 shadow-md ring-1 ring-sky-500/50'
+                    : 'bg-white dark:bg-slate-900/80 hover:bg-slate-50 dark:hover:bg-slate-850 border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700'
                 }`}
               >
                 <div className="flex items-center justify-between">
-                  <span className={`font-mono text-xs font-bold ${isActive ? 'text-sky-300' : 'text-slate-200'}`}>
+                  <span className={`font-mono text-xs font-bold ${isActive ? 'text-sky-700 dark:text-sky-300' : 'text-slate-800 dark:text-slate-200'}`}>
                     {item.title}
                   </span>
                   {isActive ? (
-                    <span className="flex items-center gap-1 text-2xs font-mono font-bold text-sky-400 bg-sky-950 px-2 py-0.5 rounded border border-sky-800">
+                    <span className="flex items-center gap-1 text-2xs font-mono font-bold text-sky-700 dark:text-sky-400 bg-sky-100 dark:bg-sky-950 px-2 py-0.5 rounded border border-sky-300 dark:border-sky-800">
                       <CheckCircle2 className="w-3 h-3" /> ACTIVE
                     </span>
                   ) : (
@@ -125,7 +125,7 @@ export const ProfilePage: React.FC = () => {
                   )}
                 </div>
 
-                <p className="text-2xs text-slate-400 leading-relaxed">
+                <p className="text-2xs text-slate-600 dark:text-slate-400 leading-relaxed">
                   {item.description}
                 </p>
 
@@ -133,7 +133,7 @@ export const ProfilePage: React.FC = () => {
                   {item.permissions.map((p) => (
                     <span
                       key={p}
-                      className="text-2xs font-mono px-1.5 py-0.5 rounded bg-slate-950 text-slate-400 border border-slate-850"
+                      className="text-2xs font-mono px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-950 text-slate-700 dark:text-slate-400 border border-slate-200 dark:border-slate-850"
                     >
                       ✓ {p}
                     </span>

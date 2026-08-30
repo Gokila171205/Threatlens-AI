@@ -19,19 +19,19 @@ export const ErrorState: React.FC<ErrorStateProps> = ({
   className,
 }) => {
   return (
-    <div className={clsx('p-5 rounded border border-red-900/60 bg-red-950/20 flex flex-col md:flex-row items-start md:items-center justify-between gap-4', className)}>
+    <div className={clsx('p-5 rounded border border-red-200 dark:border-red-900/60 bg-red-50/70 dark:bg-red-950/20 flex flex-col md:flex-row items-start md:items-center justify-between gap-4', className)}>
       <div className="flex items-start gap-3">
-        <div className="p-2 rounded bg-red-950/80 border border-red-800/80 text-red-400 shrink-0">
+        <div className="p-2 rounded bg-red-100 dark:bg-red-950/80 border border-red-200 dark:border-red-800/80 text-red-600 dark:text-red-400 shrink-0">
           <AlertOctagon className="w-5 h-5" />
         </div>
         <div>
           <div className="flex items-center gap-2">
-            <h4 className="text-xs font-semibold text-red-300">{title}</h4>
-            <span className="text-2xs font-mono bg-red-950 text-red-400 border border-red-800/50 px-1.5 py-0.2 rounded">
+            <h4 className="text-xs font-semibold text-red-800 dark:text-red-300">{title}</h4>
+            <span className="text-2xs font-mono bg-red-100 text-red-800 dark:bg-red-950 dark:text-red-400 border border-red-200 dark:border-red-800/50 px-1.5 py-0.2 rounded font-semibold">
               {errorCode}
             </span>
           </div>
-          <p className="text-2xs text-red-300/80 mt-1 max-w-xl">
+          <p className="text-2xs text-red-700/80 dark:text-red-300/80 mt-1 max-w-xl">
             {message}
           </p>
         </div>

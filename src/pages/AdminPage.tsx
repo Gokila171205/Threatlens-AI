@@ -89,7 +89,7 @@ export const AdminPage: React.FC = () => {
       header: 'Platform User & Email',
       render: (item) => (
         <div className="flex flex-col min-w-0 font-mono">
-          <span className="font-bold text-xs text-slate-100">{item.name}</span>
+          <span className="font-bold text-xs text-slate-900 dark:text-slate-100">{item.name}</span>
           <span className="text-2xs text-slate-500">{item.email}</span>
         </div>
       ),
@@ -101,7 +101,7 @@ export const AdminPage: React.FC = () => {
         <select
           value={item.role}
           onChange={(e) => handleRoleChange(item.id, e.target.value as UserRole)}
-          className="bg-slate-950 border border-slate-750 text-sky-400 font-mono font-semibold rounded px-2 py-1 text-2xs focus:outline-none focus:border-sky-500"
+          className="bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-750 text-sky-700 dark:text-sky-400 font-mono font-semibold rounded px-2 py-1 text-2xs focus:outline-none focus:border-sky-500 shadow-2xs"
         >
           {ALL_ROLES.map((r) => (
             <option key={r} value={r}>
@@ -119,8 +119,8 @@ export const AdminPage: React.FC = () => {
         <span
           className={`font-mono text-2xs font-bold px-2 py-0.5 rounded border ${
             item.status === 'Active'
-              ? 'bg-emerald-950/70 text-emerald-400 border-emerald-800/80'
-              : 'bg-slate-950/70 text-slate-400 border-slate-800'
+              ? 'bg-emerald-50 text-emerald-800 border-emerald-200 dark:bg-emerald-950/70 dark:text-emerald-400 dark:border-emerald-800/80'
+              : 'bg-slate-100 text-slate-600 border-slate-200 dark:bg-slate-950/70 dark:text-slate-400 dark:border-slate-800'
           }`}
         >
           {item.status}
@@ -131,7 +131,7 @@ export const AdminPage: React.FC = () => {
       key: 'lastActive',
       header: 'Last Active',
       render: (item) => (
-        <span className="font-mono text-2xs text-slate-400">
+        <span className="font-mono text-2xs text-slate-500 dark:text-slate-400">
           {item.lastActive.includes('Z') ? formatRelativeTime(item.lastActive) : item.lastActive}
         </span>
       ),
@@ -155,13 +155,13 @@ export const AdminPage: React.FC = () => {
   return (
     <div className="space-y-6 select-none font-sans">
       {/* Top Banner Header */}
-      <div className="p-3.5 bg-slate-900 border border-slate-800 rounded flex flex-col md:flex-row md:items-center justify-between gap-3">
+      <div className="p-3.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded flex flex-col md:flex-row md:items-center justify-between gap-3 shadow-2xs">
         <div>
-          <h1 className="text-sm font-bold tracking-wider font-mono text-slate-100 uppercase flex items-center gap-2">
-            <ShieldCheck className="w-4 h-4 text-sky-400" />
+          <h1 className="text-sm font-bold tracking-wider font-mono text-slate-900 dark:text-slate-100 uppercase flex items-center gap-2">
+            <ShieldCheck className="w-4 h-4 text-sky-600 dark:text-sky-400" />
             <span>Platform Administration & Access Control</span>
           </h1>
-          <p className="text-2xs text-slate-400 font-mono mt-0.5">
+          <p className="text-2xs text-slate-500 dark:text-slate-400 font-mono mt-0.5">
             Role Access Matrix • EDR / SIEM Connectors • Audit Trail Logging
           </p>
         </div>
@@ -189,8 +189,8 @@ export const AdminPage: React.FC = () => {
       {/* User Management Section */}
       <div className="space-y-3 font-mono">
         <div className="flex items-center justify-between">
-          <h2 className="text-xs font-semibold uppercase tracking-wider text-slate-100 flex items-center gap-2">
-            <Users className="w-4 h-4 text-sky-400" />
+          <h2 className="text-xs font-semibold uppercase tracking-wider text-slate-900 dark:text-slate-100 flex items-center gap-2">
+            <Users className="w-4 h-4 text-sky-600 dark:text-sky-400" />
             <span>1. User Provisioning & Centralized Role Management</span>
           </h2>
           <span className="text-2xs text-slate-500">Total Users: {users.length}</span>
@@ -206,26 +206,26 @@ export const AdminPage: React.FC = () => {
       {/* Integrations & Security Policies Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 font-mono">
         {/* Platform Integrations */}
-        <div className="p-4 bg-slate-900 border border-slate-800 rounded space-y-3">
-          <div className="flex items-center justify-between border-b border-slate-800 pb-2">
-            <h3 className="text-xs font-semibold uppercase tracking-wider text-slate-100 flex items-center gap-2">
-              <Layers className="w-4 h-4 text-sky-400" />
+        <div className="p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded space-y-3 shadow-2xs">
+          <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-2">
+            <h3 className="text-xs font-semibold uppercase tracking-wider text-slate-900 dark:text-slate-100 flex items-center gap-2">
+              <Layers className="w-4 h-4 text-sky-600 dark:text-sky-400" />
               <span>2. Security Integrations & Sensors</span>
             </h3>
           </div>
 
           <div className="space-y-2">
             {integrations.map((int) => (
-              <div key={int.id} className="p-2.5 bg-slate-950 rounded border border-slate-800 flex items-center justify-between text-2xs">
+              <div key={int.id} className="p-2.5 bg-slate-50 dark:bg-slate-950 rounded border border-slate-200 dark:border-slate-800 flex items-center justify-between text-2xs">
                 <div>
-                  <span className="font-bold text-slate-100 block">{int.name}</span>
+                  <span className="font-bold text-slate-900 dark:text-slate-100 block">{int.name}</span>
                   <span className="text-slate-500">Sync: {int.lastSync}</span>
                 </div>
                 <span
                   className={`font-bold px-2 py-0.5 rounded border ${
                     int.status === 'Connected'
-                      ? 'bg-emerald-950 text-emerald-400 border-emerald-800'
-                      : 'bg-amber-950 text-amber-400 border-amber-800'
+                      ? 'bg-emerald-50 text-emerald-800 border-emerald-200 dark:bg-emerald-950 dark:text-emerald-400 dark:border-emerald-800'
+                      : 'bg-amber-50 text-amber-800 border-amber-200 dark:bg-amber-950 dark:text-amber-400 dark:border-amber-800'
                   }`}
                 >
                   {int.status}
@@ -236,52 +236,52 @@ export const AdminPage: React.FC = () => {
         </div>
 
         {/* Platform Security Policies */}
-        <div className="p-4 bg-slate-900 border border-slate-800 rounded space-y-3">
-          <div className="flex items-center justify-between border-b border-slate-800 pb-2">
-            <h3 className="text-xs font-semibold uppercase tracking-wider text-slate-100 flex items-center gap-2">
-              <Settings className="w-4 h-4 text-amber-400" />
+        <div className="p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded space-y-3 shadow-2xs">
+          <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-2">
+            <h3 className="text-xs font-semibold uppercase tracking-wider text-slate-900 dark:text-slate-100 flex items-center gap-2">
+              <Settings className="w-4 h-4 text-amber-600 dark:text-amber-400" />
               <span>3. Enforced Platform Security Policies</span>
             </h3>
           </div>
 
           <div className="space-y-2 text-2xs">
-            <div className="p-2.5 bg-slate-950 rounded border border-slate-800 flex items-center justify-between">
+            <div className="p-2.5 bg-slate-50 dark:bg-slate-950 rounded border border-slate-200 dark:border-slate-800 flex items-center justify-between">
               <div>
-                <span className="font-bold text-slate-200 block">Strict Zero Trust Authorization Matrix</span>
+                <span className="font-bold text-slate-800 dark:text-slate-200 block">Strict Zero Trust Authorization Matrix</span>
                 <span className="text-slate-500">11 Explicit Permissions scoped by persona</span>
               </div>
-              <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+              <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
             </div>
 
-            <div className="p-2.5 bg-slate-950 rounded border border-slate-800 flex items-center justify-between">
+            <div className="p-2.5 bg-slate-50 dark:bg-slate-950 rounded border border-slate-200 dark:border-slate-800 flex items-center justify-between">
               <div>
-                <span className="font-bold text-slate-200 block">NeuralPE Classifier Confidence Cutoff</span>
+                <span className="font-bold text-slate-800 dark:text-slate-200 block">NeuralPE Classifier Confidence Cutoff</span>
                 <span className="text-slate-500">Enforce manual triage on predictions &lt; 75%</span>
               </div>
-              <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+              <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
             </div>
 
-            <div className="p-2.5 bg-slate-950 rounded border border-slate-800 flex items-center justify-between">
+            <div className="p-2.5 bg-slate-50 dark:bg-slate-950 rounded border border-slate-200 dark:border-slate-800 flex items-center justify-between">
               <div>
-                <span className="font-bold text-slate-200 block">Sanitized Sandbox Execution Safety</span>
+                <span className="font-bold text-slate-800 dark:text-slate-200 block">Sanitized Sandbox Execution Safety</span>
                 <span className="text-slate-500">Air-gapped Hyper-V isolate mode enabled</span>
               </div>
-              <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+              <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
             </div>
           </div>
         </div>
       </div>
 
       {/* Platform Activity Audit Log */}
-      <div className="p-4 bg-slate-900 border border-slate-800 rounded space-y-3 font-mono">
-        <div className="flex items-center justify-between border-b border-slate-800 pb-2">
-          <h3 className="text-xs font-semibold uppercase tracking-wider text-slate-100 flex items-center gap-2">
-            <Activity className="w-4 h-4 text-sky-400" />
+      <div className="p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded space-y-3 font-mono shadow-2xs">
+        <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-2">
+          <h3 className="text-xs font-semibold uppercase tracking-wider text-slate-900 dark:text-slate-100 flex items-center gap-2">
+            <Activity className="w-4 h-4 text-sky-600 dark:text-sky-400" />
             <span>4. Administrative Platform Audit Log</span>
           </h3>
         </div>
 
-        <div className="border border-slate-800 rounded bg-slate-950 overflow-x-auto">
+        <div className="border border-slate-200 dark:border-slate-800 rounded bg-white dark:bg-slate-950 overflow-x-auto">
           <table className="w-full text-left border-collapse soc-table">
             <thead>
               <tr>
@@ -294,11 +294,11 @@ export const AdminPage: React.FC = () => {
             </thead>
             <tbody>
               {auditLogs.map((log) => (
-                <tr key={log.id} className="hover:bg-slate-900/60">
-                  <td className="text-2xs text-slate-400">{log.timestamp}</td>
-                  <td className="font-bold text-sky-300 text-2xs">{log.actor}</td>
-                  <td className="font-bold text-amber-300 text-2xs">{log.action}</td>
-                  <td className="text-slate-200 text-2xs">{log.target}</td>
+                <tr key={log.id} className="hover:bg-slate-50 dark:hover:bg-slate-900/60">
+                  <td className="text-2xs text-slate-500 dark:text-slate-400">{log.timestamp}</td>
+                  <td className="font-bold text-sky-700 dark:text-sky-300 text-2xs">{log.actor}</td>
+                  <td className="font-bold text-amber-700 dark:text-amber-300 text-2xs">{log.action}</td>
+                  <td className="text-slate-800 dark:text-slate-200 text-2xs">{log.target}</td>
                   <td className="text-slate-500 text-2xs">{log.ipAddress}</td>
                 </tr>
               ))}
@@ -327,13 +327,13 @@ export const AdminPage: React.FC = () => {
           />
 
           <div>
-            <label className="block text-2xs font-mono font-medium text-slate-300 mb-1">
+            <label className="block text-2xs font-mono font-medium text-slate-700 dark:text-slate-300 mb-1">
               Select Role Assignment
             </label>
             <select
               value={newUserRole}
               onChange={(e) => setNewUserRole(e.target.value as UserRole)}
-              className="bg-slate-950 border border-slate-750 text-slate-100 font-mono rounded px-3 py-1.5 text-2xs focus:outline-none focus:border-sky-500 w-full"
+              className="bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-750 text-slate-900 dark:text-slate-100 font-mono rounded px-3 py-1.5 text-2xs focus:outline-none focus:border-sky-500 w-full shadow-2xs"
             >
               {ALL_ROLES.map((r) => (
                 <option key={r} value={r}>

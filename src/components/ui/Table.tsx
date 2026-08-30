@@ -40,7 +40,7 @@ export function Table<T>({
   className,
 }: TableProps<T>) {
   return (
-    <div className={clsx('w-full overflow-x-auto border border-slate-800 rounded bg-slate-950/60', className)}>
+    <div className={clsx('w-full overflow-x-auto border border-slate-200 dark:border-slate-800 rounded bg-white dark:bg-slate-950/60 shadow-2xs', className)}>
       <table className="w-full text-left border-collapse soc-table">
         <thead>
           <tr>
@@ -51,7 +51,7 @@ export function Table<T>({
                   key={col.key}
                   style={{ width: col.width }}
                   className={clsx(
-                    col.sortable ? 'cursor-pointer hover:bg-slate-800/80 transition-colors' : '',
+                    col.sortable ? 'cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800/80 transition-colors' : '',
                     col.align === 'center' ? 'text-center' : col.align === 'right' ? 'text-right' : 'text-left',
                     col.className
                   )}
@@ -63,13 +63,13 @@ export function Table<T>({
                   )}>
                     <span>{col.header}</span>
                     {col.sortable && (
-                      <span className="text-slate-500 inline-flex flex-col">
+                      <span className="text-slate-400 dark:text-slate-500 inline-flex flex-col">
                         {isSorted && sortDirection === 'asc' ? (
-                          <ChevronUp className="w-3 h-3 text-sky-400" />
+                          <ChevronUp className="w-3 h-3 text-sky-600 dark:text-sky-400" />
                         ) : isSorted && sortDirection === 'desc' ? (
-                          <ChevronDown className="w-3 h-3 text-sky-400" />
+                          <ChevronDown className="w-3 h-3 text-sky-600 dark:text-sky-400" />
                         ) : (
-                          <ChevronDown className="w-3 h-3 opacity-30" />
+                          <ChevronDown className="w-3 h-3 opacity-40" />
                         )}
                       </span>
                     )}
@@ -79,7 +79,7 @@ export function Table<T>({
             })}
           </tr>
         </thead>
-        <tbody className="divide-y divide-slate-900/60">
+        <tbody className="divide-y divide-slate-100 dark:divide-slate-900/60">
           {isLoading ? (
             <tr>
               <td colSpan={columns.length} className="py-12 text-center text-slate-500">
@@ -104,9 +104,9 @@ export function Table<T>({
                   key={rowId}
                   onClick={() => onRowClick?.(item)}
                   className={clsx(
-                    'transition-colors text-slate-300',
+                    'transition-colors text-slate-800 dark:text-slate-300',
                     onRowClick ? 'cursor-pointer' : '',
-                    isSelected ? 'bg-sky-950/40 border-l-2 border-l-sky-500' : 'hover:bg-slate-900/50'
+                    isSelected ? 'bg-sky-50 dark:bg-sky-950/40 border-l-2 border-l-sky-500' : 'hover:bg-slate-50 dark:hover:bg-slate-900/50'
                   )}
                 >
                   {columns.map((col) => (

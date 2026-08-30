@@ -43,14 +43,14 @@ export const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children })
   };
 
   return (
-    <div className="min-h-screen bg-[#0B0F17] text-slate-200 flex flex-row">
+    <div className="min-h-screen w-full bg-threat-bg text-threat-text flex flex-row transition-colors">
       {/* Persistent Collapsible Sidebar */}
       <Sidebar />
 
       {/* Main Content Viewport */}
-      <div className="flex-1 flex flex-col min-w-0 overflow-x-hidden">
+      <div className="flex-1 flex flex-col min-w-0 overflow-x-hidden bg-threat-bg">
         <Topbar />
-        <main className="flex-1 p-4 md:p-6 overflow-y-auto">
+        <main className="flex-1 p-4 md:p-6 overflow-y-auto bg-threat-bg">
           {children}
         </main>
       </div>
@@ -61,7 +61,7 @@ export const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children })
         onClose={() => setIsSearchModalOpen(false)}
         title={
           <div className="flex items-center gap-2">
-            <Search className="w-4 h-4 text-sky-400" />
+            <Search className="w-4 h-4 text-sky-600 dark:text-sky-400" />
             <span>Global Threat & Hash Intelligence Search</span>
           </div>
         }
@@ -73,7 +73,7 @@ export const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children })
             placeholder="Type SHA-256 hash, file name, threat family (e.g. LockBit), or IP..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            leftIcon={<Search className="w-4 h-4 text-slate-500" />}
+            leftIcon={<Search className="w-4 h-4 text-slate-400" />}
             onClear={() => setSearchQuery('')}
             autoFocus
           />
@@ -83,11 +83,11 @@ export const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children })
             <div>
               <div className="text-2xs font-semibold uppercase tracking-wider text-slate-500 font-mono mb-2 flex items-center justify-between">
                 <span>Malware Samples ({filteredSamples.length})</span>
-                <span className="text-slate-600 font-mono">Press Enter to inspect</span>
+                <span className="text-slate-400 dark:text-slate-500 font-mono">Press Enter to inspect</span>
               </div>
               <div className="space-y-1.5 max-h-48 overflow-y-auto">
                 {filteredSamples.length === 0 ? (
-                  <div className="p-3 text-center text-xs text-slate-500 bg-slate-950/40 rounded border border-slate-850">
+                  <div className="p-3 text-center text-xs text-slate-500 bg-slate-50 dark:bg-slate-950/40 rounded border border-slate-200 dark:border-slate-800">
                     No matching malware signatures found
                   </div>
                 ) : (
@@ -95,13 +95,13 @@ export const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children })
                     <div
                       key={sample.id}
                       onClick={() => handleSelectSample(sample.id)}
-                      className="p-2.5 bg-slate-950/70 hover:bg-slate-850 border border-slate-800 rounded flex items-center justify-between cursor-pointer group transition-colors"
+                      className="p-2.5 bg-white dark:bg-slate-950/70 hover:bg-slate-50 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-800 rounded flex items-center justify-between cursor-pointer group transition-colors"
                     >
                       <div className="flex items-center gap-2.5 min-w-0">
-                        <FileSearch className="w-4 h-4 text-sky-400 shrink-0" />
+                        <FileSearch className="w-4 h-4 text-sky-600 dark:text-sky-400 shrink-0" />
                         <div className="min-w-0">
                           <div className="flex items-center gap-2">
-                            <span className="text-xs font-semibold text-slate-200 group-hover:text-sky-300 font-mono truncate">
+                            <span className="text-xs font-semibold text-slate-800 dark:text-slate-200 group-hover:text-sky-600 dark:group-hover:text-sky-300 font-mono truncate">
                               {sample.fileName}
                             </span>
                             <Badge verdict={sample.verdict} size="xs">
@@ -111,18 +111,18 @@ export const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children })
                           <div className="flex items-center gap-2 mt-1">
                             <MonoText value={sample.sha256} truncate startLen={6} endLen={6} />
                             {sample.threatFamily && (
-                              <span className="text-2xs text-amber-400 font-mono">
+                              <span className="text-2xs text-amber-600 dark:text-amber-400 font-mono font-medium">
                                 [{sample.threatFamily}]
                               </span>
                             )}
                           </div>
                         </div>
                       </div>
-                      <div className="flex items-center gap-2 text-slate-500 group-hover:text-slate-300 shrink-0">
-                        <span className="text-2xs font-mono text-slate-400 font-bold">
+                      <div className="flex items-center gap-2 text-slate-500 group-hover:text-slate-700 dark:group-hover:text-slate-300 shrink-0">
+                        <span className="text-2xs font-mono text-slate-600 dark:text-slate-400 font-bold">
                           Score: {sample.threatScore}/100
                         </span>
-                        <ArrowRight className="w-3.5 h-3.5 text-sky-400" />
+                        <ArrowRight className="w-3.5 h-3.5 text-sky-600 dark:text-sky-400" />
                       </div>
                     </div>
                   ))
@@ -131,7 +131,7 @@ export const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children })
             </div>
 
             {/* Alerts Result */}
-            <div className="pt-2 border-t border-slate-800">
+            <div className="pt-2 border-t border-slate-200 dark:border-slate-800">
               <div className="text-2xs font-semibold uppercase tracking-wider text-slate-500 font-mono mb-2">
                 Active Incidents ({filteredAlerts.length})
               </div>
@@ -140,18 +140,18 @@ export const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children })
                   <div
                     key={alert.id}
                     onClick={handleSelectAlert}
-                    className="p-2.5 bg-slate-950/70 hover:bg-slate-850 border border-slate-800 rounded flex items-center justify-between cursor-pointer group transition-colors"
+                    className="p-2.5 bg-white dark:bg-slate-950/70 hover:bg-slate-50 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-800 rounded flex items-center justify-between cursor-pointer group transition-colors"
                   >
                     <div className="flex items-center gap-2.5 min-w-0">
-                      <ShieldAlert className="w-4 h-4 text-red-400 shrink-0" />
+                      <ShieldAlert className="w-4 h-4 text-red-600 dark:text-red-400 shrink-0" />
                       <div className="min-w-0">
                         <div className="flex items-center gap-2">
-                          <span className="text-2xs font-mono text-slate-400">{alert.id}</span>
+                          <span className="text-2xs font-mono text-slate-500 dark:text-slate-400">{alert.id}</span>
                           <Badge severity={alert.severity} size="xs">
                             {alert.severity}
                           </Badge>
                         </div>
-                        <span className="text-xs text-slate-300 font-medium truncate block mt-0.5">
+                        <span className="text-xs text-slate-800 dark:text-slate-300 font-medium truncate block mt-0.5">
                           {alert.title}
                         </span>
                       </div>
