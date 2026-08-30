@@ -1,0 +1,261 @@
+import React, { useState, useEffect } from 'react';
+import {
+  BarChart2,
+  Activity,
+  Layers,
+  ShieldAlert,
+  Zap,
+  RotateCw
+} from 'lucide-react';
+import { Button } from '../components/ui/Button';
+import { ThreatTimelineChart } from '../components/common/ThreatTimelineChart';
+import { RiskScoreBar } from '../components/common/RiskScoreBar';
+import { LoadingState } from '../components/ui/LoadingState';
+import { ThreatLensApi } from '../services/api';
+import { MOCK_TIMELINE_DATA } from '../data/mockDashboardData';
+import type { MalwareFamilyShare, ConfidenceBracket } from '../data/mockAnalyticsData';
+
+export const AnalyticsPage: React.FC = () => {
+  const [dateRange, setDateRange] = useState<'24h' | '7d' | '30d' | '90d'>('24h');
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+
+  const [metrics, setMetrics] = useState<{
+    totalScanned: number;
+    maliciousDetected: number;
+    suspiciousDetected: number;
+    cleanRatio: string;
+    avgRiskScore: number;
+    avgInferenceMs: number;
+    avgSandboxLatencySec: number;
+  } | null>(null);
+
+  const [families, setFamilies] = useState<MalwareFamilyShare[]>([]);
+  const [confidenceBrackets, setConfidenceBrackets] = useState<ConfidenceBracket[]>([]);
+
+  useEffect(() => {
+    async function loadData() {
+      setIsLoading(true);
+      const data = await ThreatLensApi.getAnalyticsSummary();
+      setMetrics(data.metrics);
+      setFamilies(data.families);
+      setConfidenceBrackets(data.confidenceBrackets);
+      setIsLoading(false);
+    }
+    loadData();
+  }, []);
+
+  if (isLoading || !metrics) {
+    return <LoadingState message="Calculating SOC Threat Analytics & Vector Distribution..." />;
+  }
+
+  return (
+    <div className="space-y-6 select-none font-sans">
+      {/* Top Banner Header */}
+      <div className="p-3.5 bg-slate-900 border border-slate-800 rounded flex flex-col md:flex-row md:items-center justify-between gap-3">
+        <div>
+          <h1 className="text-sm font-bold tracking-wider font-mono text-slate-100 uppercase flex items-center gap-2">
+            <BarChart2 className="w-4 h-4 text-sky-400" />
+            <span>Threat Vector Trends & Incident Analytics</span>
+          </h1>
+          <p className="text-2xs text-slate-400 font-mono mt-0.5">
+            Statistical Telemetry Analysis • NeuralPE Model Accuracy & Performance Audit
+          </p>
+        </div>
+
+        {/* Date Range Selector & Refresh */}
+        <div className="flex items-center gap-2 shrink-0 font-mono text-2xs">
+          <div className="inline-flex items-center bg-slate-950 border border-slate-800 rounded p-0.5">
+            {(['24h', '7d', '30d', '90d'] as const).map((range) => (
+              <button
+                key={range}
+                type="button"
+                onClick={() => setDateRange(range)}
+                className={`px-2.5 py-1 rounded transition-colors ${
+                  dateRange === range
+                    ? 'bg-sky-950 text-sky-400 font-bold border border-sky-800/80'
+                    : 'text-slate-400 hover:text-slate-200'
+                }`}
+              >
+                {range.toUpperCase()}
+              </button>
+            ))}
+          </div>
+
+          <Button
+            variant="secondary"
+            size="xs"
+            leftIcon={<RotateCw className="w-3 h-3" />}
+            onClick={() => {
+              setIsLoading(true);
+              setTimeout(() => setIsLoading(false), 400);
+            }}
+          >
+            Refresh
+          </Button>
+        </div>
+      </div>
+
+      {/* 4 Top KPI Analytics Cards */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 font-mono">
+        <div className="p-3.5 bg-slate-900 border border-slate-800 rounded flex flex-col justify-between">
+          <span className="text-2xs text-slate-500 uppercase">Detection Volume</span>
+          <div className="mt-2">
+            <span className="text-xl font-bold text-slate-100">{metrics.totalScanned.toLocaleString()}</span>
+            <div className="text-2xs text-sky-400 mt-0.5">{metrics.cleanRatio} Clean Payload Ratio</div>
+          </div>
+        </div>
+
+        <div className="p-3.5 bg-slate-900 border border-slate-800 rounded flex flex-col justify-between">
+          <span className="text-2xs text-slate-500 uppercase">Malicious Threat Detections</span>
+          <div className="mt-2">
+            <span className="text-xl font-bold text-red-400">{metrics.maliciousDetected}</span>
+            <div className="text-2xs text-slate-400 mt-0.5">+{metrics.suspiciousDetected} Suspicious Flagged</div>
+          </div>
+        </div>
+
+        <div className="p-3.5 bg-slate-900 border border-slate-800 rounded flex flex-col justify-between">
+          <span className="text-2xs text-slate-500 uppercase">Mean Security Risk Score</span>
+          <div className="mt-2">
+            <RiskScoreBar score={metrics.avgRiskScore} size="sm" />
+            <div className="text-2xs text-slate-400 mt-1">Target Impact Threshold</div>
+          </div>
+        </div>
+
+        <div className="p-3.5 bg-slate-900 border border-slate-800 rounded flex flex-col justify-between">
+          <span className="text-2xs text-slate-500 uppercase">NeuralPE Inference Speed</span>
+          <div className="mt-2">
+            <span className="text-xl font-bold text-emerald-400">{metrics.avgInferenceMs} ms</span>
+            <div className="text-2xs text-slate-400 mt-0.5">Sandbox: {metrics.avgSandboxLatencySec}s avg</div>
+          </div>
+        </div>
+      </div>
+
+      {/* Main Analytics Grid */}
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-5 font-mono">
+        {/* Section 1: Malware Detection & Ingestion Velocity Trend */}
+        <div className="p-4 bg-slate-900 border border-slate-800 rounded space-y-3">
+          <div className="flex items-center justify-between border-b border-slate-800 pb-2">
+            <h2 className="text-xs font-semibold uppercase tracking-wider text-slate-100 flex items-center gap-2">
+              <Activity className="w-4 h-4 text-sky-400" />
+              <span>1. Malware Detection & Ingestion Velocity Trend</span>
+            </h2>
+            <span className="text-2xs text-slate-500">Range: {dateRange.toUpperCase()}</span>
+          </div>
+
+          <ThreatTimelineChart data={MOCK_TIMELINE_DATA} />
+        </div>
+
+        {/* Section 2: Severity Distribution Ratios */}
+        <div className="p-4 bg-slate-900 border border-slate-800 rounded space-y-3">
+          <div className="flex items-center justify-between border-b border-slate-800 pb-2">
+            <h2 className="text-xs font-semibold uppercase tracking-wider text-slate-100 flex items-center gap-2">
+              <ShieldAlert className="w-4 h-4 text-amber-400" />
+              <span>2. Severity Trend & Incident Ratio Breakdown</span>
+            </h2>
+            <span className="text-2xs text-slate-500">Total: 1,429 Detections</span>
+          </div>
+
+          <div className="space-y-3 text-2xs pt-2">
+            <div className="space-y-1">
+              <div className="flex justify-between font-bold">
+                <span className="text-red-400">Critical Severity (Risk ≥ 85)</span>
+                <span className="text-slate-200">257 Threats (18%)</span>
+              </div>
+              <div className="w-full bg-slate-950 h-2 rounded overflow-hidden border border-slate-800">
+                <div className="bg-red-500 h-full w-[18%]" />
+              </div>
+            </div>
+
+            <div className="space-y-1">
+              <div className="flex justify-between font-bold">
+                <span className="text-orange-400">High Severity (Risk 70-84)</span>
+                <span className="text-slate-200">400 Threats (28%)</span>
+              </div>
+              <div className="w-full bg-slate-950 h-2 rounded overflow-hidden border border-slate-800">
+                <div className="bg-orange-500 h-full w-[28%]" />
+              </div>
+            </div>
+
+            <div className="space-y-1">
+              <div className="flex justify-between font-bold">
+                <span className="text-amber-400">Medium Severity (Risk 40-69)</span>
+                <span className="text-slate-200">486 Threats (34%)</span>
+              </div>
+              <div className="w-full bg-slate-950 h-2 rounded overflow-hidden border border-slate-800">
+                <div className="bg-amber-500 h-full w-[34%]" />
+              </div>
+            </div>
+
+            <div className="space-y-1">
+              <div className="flex justify-between font-bold">
+                <span className="text-emerald-400">Low Severity (Risk &lt; 40)</span>
+                <span className="text-slate-200">286 Threats (20%)</span>
+              </div>
+              <div className="w-full bg-slate-950 h-2 rounded overflow-hidden border border-slate-800">
+                <div className="bg-emerald-500 h-full w-[20%]" />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Section 3: Malware Family Distribution */}
+        <div className="p-4 bg-slate-900 border border-slate-800 rounded space-y-3">
+          <div className="flex items-center justify-between border-b border-slate-800 pb-2">
+            <h2 className="text-xs font-semibold uppercase tracking-wider text-slate-100 flex items-center gap-2">
+              <Layers className="w-4 h-4 text-sky-400" />
+              <span>3. Malware Family Share Distribution</span>
+            </h2>
+            <span className="text-2xs text-slate-500">6 Primary Clusters</span>
+          </div>
+
+          <div className="space-y-2.5">
+            {families.map((fam) => (
+              <div key={fam.family} className="space-y-1 text-2xs">
+                <div className="flex justify-between">
+                  <div className="flex items-center gap-2">
+                    <span className="font-bold text-slate-100">{fam.family}</span>
+                    <span className="text-slate-500">({fam.category})</span>
+                  </div>
+                  <span className="font-bold text-slate-200">{fam.count} ({fam.percentage}%)</span>
+                </div>
+                <div className="w-full bg-slate-950 h-1.5 rounded overflow-hidden border border-slate-850">
+                  <div
+                    className={`h-full ${
+                      fam.severity === 'critical' ? 'bg-red-500' : fam.severity === 'high' ? 'bg-orange-500' : 'bg-amber-500'
+                    }`}
+                    style={{ width: `${fam.percentage}%` }}
+                  />
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Section 4: Classification Model Confidence Brackets */}
+        <div className="p-4 bg-slate-900 border border-slate-800 rounded space-y-3">
+          <div className="flex items-center justify-between border-b border-slate-800 pb-2">
+            <h2 className="text-xs font-semibold uppercase tracking-wider text-slate-100 flex items-center gap-2">
+              <Zap className="w-4 h-4 text-sky-400" />
+              <span>4. NeuralPE Classifier Certainty Brackets</span>
+            </h2>
+            <span className="text-2xs text-slate-500">Model Accuracy Audit</span>
+          </div>
+
+          <div className="space-y-2.5">
+            {confidenceBrackets.map((b) => (
+              <div key={b.bracket} className="p-2.5 bg-slate-950 rounded border border-slate-800 space-y-1 text-2xs">
+                <div className="flex justify-between">
+                  <span className="font-bold text-sky-300">{b.bracket}</span>
+                  <span className="text-slate-200 font-bold">{b.count} Samples ({b.percentage}%)</span>
+                </div>
+                <div className="w-full bg-slate-900 h-1.5 rounded overflow-hidden">
+                  <div className="bg-sky-500 h-full" style={{ width: `${b.percentage}%` }} />
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
