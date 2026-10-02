@@ -195,7 +195,7 @@ export const FileAnalysisPage: React.FC = () => {
       } else if (status === 403) {
         setScanError('Access Denied: Account lacks required role permissions (Security Analyst, Researcher, or Administrator) to submit scans.');
       } else if (status === 0 || message.includes('unreachable') || message.includes('Failed to fetch') || message.includes('offline')) {
-        setScanError('ThreatLens backend is unavailable. Please ensure the FastAPI server is running on port 8000 (python -m uvicorn app.main:app) and try again.');
+        setScanError('ThreatLens backend is unavailable. Please ensure the backend server is running and reachable, then try again.');
       } else {
         setScanError(`Analysis failed: ${message}. Unable to connect to the ThreatLens analysis backend. Please ensure the backend is running and authenticated.`);
       }

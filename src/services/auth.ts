@@ -1,6 +1,7 @@
 import type { UserRole } from '../types';
 import type { LoginCredentials, UserSession } from '../types/auth';
-import { API_BASE_URL, httpClient } from './httpClient';
+import { API_URL, validateApiConfig } from '../config/api';
+import { httpClient } from './httpClient';
 
 const USER_SESSION_KEY = 'threatlens_user_session';
 
@@ -29,6 +30,43 @@ const ROLE_TEST_CREDENTIALS: Record<UserRole, { email: string; pass: string }> =
 
 export const AuthService = {
   /**
+   * Register a new user against FastAPI backend POST /api/auth/register
+   */
+  register: async (name: string, email: string, password: string): Promise<any> => {
+    validateApiConfig();
+
+    let response: Response;
+    try {
+      response = await fetch(`${API_URL}/api/auth/register`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+        },
+        body: JSON.stringify({ name, email, password }),
+      });
+    } catch (err: any) {
+      if (err?.message && err.message.includes('VITE_API_URL')) {
+        throw err;
+      }
+      throw new Error('Failed to connect to authentication server. Verify backend is running.');
+    }
+
+    if (!response.ok) {
+      let errMsg = 'Registration failed.';
+      try {
+        const errJson = await response.json();
+        errMsg = errJson.message || errJson.detail?.message || errJson.detail || errMsg;
+      } catch {
+        // use default
+      }
+      throw new Error(typeof errMsg === 'string' ? errMsg : 'Registration failed.');
+    }
+
+    return response.json();
+  },
+
+  /**
    * Authenticate user against FastAPI backend POST /api/auth/login
    * Validates credentials, receives genuine JWT, and loads /api/auth/me profile.
    */
@@ -40,9 +78,11 @@ export const AuthService = {
       throw new Error('Both email and password are required.');
     }
 
+    validateApiConfig();
+
     let response: Response;
     try {
-      response = await fetch(`${API_BASE_URL}/auth/login`, {
+      response = await fetch(`${API_URL}/api/auth/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -50,7 +90,10 @@ export const AuthService = {
         },
         body: JSON.stringify({ email, password }),
       });
-    } catch {
+    } catch (err: any) {
+      if (err?.message && err.message.includes('VITE_API_URL')) {
+        throw err;
+      }
       throw new Error('Failed to connect to authentication server. Verify backend is running.');
     }
 

@@ -14,7 +14,10 @@ class Settings(BaseSettings):
     app_name: str = "ThreatLens AI"
     host: str = "0.0.0.0"
     port: int = 8000
-    allowed_origins: str = "http://localhost:5173,http://localhost:3000,http://127.0.0.1:5173,http://localhost:8000"
+    allowed_origins: str = (
+        "http://localhost:5173,http://localhost:3000,http://127.0.0.1:5173,http://localhost:8000,"
+        "https://threatlens-ai.vercel.app"
+    )
     jwt_secret: str = "threatlens-enterprise-secret-key-32chars-minimum-sha256"
     max_upload_size_mb: int = 50
     upload_directory: str = "storage/uploads"
@@ -28,7 +31,14 @@ class Settings(BaseSettings):
     
     @property
     def cors_origins(self) -> List[str]:
-        return [origin.strip() for origin in self.allowed_origins.split(",") if origin.strip()]
+        raw = self.allowed_origins.strip()
+        if raw == "*":
+            return ["*"]
+        return [
+            origin.strip()
+            for origin in raw.replace(";", ",").replace("\n", ",").split(",")
+            if origin.strip()
+        ]
 
     @property
     def secure_jwt_secret(self) -> str:
