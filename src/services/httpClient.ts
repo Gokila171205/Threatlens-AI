@@ -3,7 +3,9 @@
  * Supports seamless plug-and-play backend integration with automatic mock fallback.
  */
 
-export const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL as string) || 'http://localhost:8000/api';
+import { API_URL, API_BASE_URL, validateApiConfig } from '../config/api';
+
+export { API_URL, API_BASE_URL, validateApiConfig };
 export const USE_MOCK_API = (import.meta.env.VITE_USE_MOCK_API as string) === 'true';
 
 export class ApiError extends Error {
@@ -104,8 +106,14 @@ export const httpClient = {
     const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
     config.signal = controller.signal;
 
+    validateApiConfig();
+
+    const normalizedEndpoint = endpoint.startsWith('/api/')
+      ? endpoint.substring(4)
+      : endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
+
     try {
-      const response = await fetch(`${API_BASE_URL}${endpoint}`, config);
+      const response = await fetch(`${API_BASE_URL}${normalizedEndpoint}`, config);
       clearTimeout(timeoutId);
 
       if (!response.ok) {
