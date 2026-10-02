@@ -30,6 +30,7 @@ class StaticAnalysisReport(BaseModel):
     suspicious_apis: Dict[str, List[str]] = {}
     suspicious_strings: List[Dict[str, str]] = []
     indicators: List[Dict[str, Any]] = []
+    yara_matches: List[Dict[str, Any]] = []
     raw_features: Dict[str, Any] = {}
     feature_names: List[str] = []
 
@@ -130,6 +131,7 @@ class ScanResponse(BaseModel):
     combined_verdict: Optional[Dict[str, Any]] = None
     mitre_techniques: List[Dict[str, Any]] = []
     indicators: List[Dict[str, Any]] = []
+    yara_matches: List[Dict[str, Any]] = []
     model_name: Optional[str] = None
     model_version: Optional[str] = None
 
@@ -194,6 +196,10 @@ class AnalyticsResponse(BaseModel):
     threat_types: Dict[str, int]
     mitre_attack_distribution: List[Dict[str, Any]]
     entropy_distribution: Dict[str, int]
+    threat_level_distribution: Dict[str, int] = {}
+    confidence_brackets: List[Dict[str, Any]] = []
+    summary_kpis: Dict[str, Any] = {}
+    heuristic_family_tags: List[Dict[str, Any]] = []
 
 
 # Threat Prediction & Risk Analytics Schemas (Milestone 3, Step 5)

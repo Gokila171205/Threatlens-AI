@@ -16,8 +16,16 @@ from app.services.behavioral_analysis_service import (
 )
 from app.services.classifier_service import classifier_service
 from app.services.db import get_behavioral_events_by_scan_id, get_db
+from app.core.security import create_access_token
 
-client = TestClient(app)
+_analyst_jwt = create_access_token({
+    "sub": "analyst@threatlens.ai",
+    "id": "test-analyst-id",
+    "email": "analyst@threatlens.ai",
+    "role": "Security Analyst",
+    "name": "Security Analyst",
+})
+client = TestClient(app, headers={"Authorization": f"Bearer {_analyst_jwt}"})
 
 
 @pytest.fixture

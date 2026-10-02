@@ -10,7 +10,6 @@ import {
 import { MOCK_DETAILED_ALERTS } from '../data/mockAlertsData';
 import {
   MOCK_ANALYTICS_METRICS,
-  MOCK_FAMILY_DISTRIBUTION_ANALYTICS,
   MOCK_CONFIDENCE_BRACKETS,
   MOCK_SECURITY_REPORTS
 } from '../data/mockAnalyticsData';
@@ -55,12 +54,43 @@ export const ThreatLensApi = {
 
   // Admin User Management API
   getAdminUsers: async (): Promise<AdminUserItem[]> => {
-    await new Promise((res) => setTimeout(res, 100));
+    try {
+      const res = await threatlensApi.getAdminUsers();
+      if (res && res.users && res.users.length > 0) {
+        return res.users.map((u: any) => ({
+          id: u.id,
+          name: u.name,
+          email: u.email,
+          role: u.role as UserRole,
+          status: u.is_active !== false && u.status !== 'Inactive' ? 'Active' : 'Inactive',
+          lastActive: u.last_login ? u.last_login.slice(11, 16) + ' UTC' : 'Recently',
+          createdDate: u.created_at ? u.created_at.slice(0, 10) : '2026-10-01',
+        }));
+      }
+    } catch {
+      // Fallback
+    }
     return [...currentAdminUsers];
   },
 
   updateAdminUserRole: async (userId: string, newRole: UserRole): Promise<AdminUserItem> => {
-    await new Promise((res) => setTimeout(res, 120));
+    try {
+      const updated = await threatlensApi.updateAdminUser(userId, { role: newRole });
+      if (updated && updated.user) {
+        const u = updated.user;
+        return {
+          id: u.id,
+          name: u.name,
+          email: u.email,
+          role: u.role as UserRole,
+          status: u.is_active !== false && u.status !== 'Inactive' ? 'Active' : 'Inactive',
+          lastActive: 'Just now',
+          createdDate: u.created_at ? u.created_at.slice(0, 10) : '2026-10-01',
+        };
+      }
+    } catch {
+      // Fallback
+    }
     const u = currentAdminUsers.find((user) => user.id === userId);
     if (!u) throw new Error('User not found');
     u.role = newRole;
@@ -68,7 +98,25 @@ export const ThreatLensApi = {
   },
 
   toggleAdminUserStatus: async (userId: string): Promise<AdminUserItem> => {
-    await new Promise((res) => setTimeout(res, 120));
+    try {
+      const target = currentAdminUsers.find((user) => user.id === userId);
+      const newStatus = target && target.status === 'Active' ? 'Inactive' : 'Active';
+      const updated = await threatlensApi.updateAdminUser(userId, { status: newStatus });
+      if (updated && updated.user) {
+        const resUser = updated.user;
+        return {
+          id: resUser.id,
+          name: resUser.name,
+          email: resUser.email,
+          role: resUser.role as UserRole,
+          status: resUser.is_active !== false && resUser.status !== 'Inactive' ? 'Active' : 'Inactive',
+          lastActive: 'Just now',
+          createdDate: resUser.created_at ? resUser.created_at.slice(0, 10) : '2026-10-01',
+        };
+      }
+    } catch {
+      // Fallback
+    }
     const u = currentAdminUsers.find((user) => user.id === userId);
     if (!u) throw new Error('User not found');
     u.status = u.status === 'Active' ? 'Inactive' : 'Active';
@@ -343,12 +391,37 @@ export const ThreatLensApi = {
     try {
       const analytics = await threatlensApi.getMonitoringAnalytics();
       if (analytics) {
+        const liveMetrics = analytics.summary_kpis && analytics.summary_kpis.totalScanned > 0
+          ? analytics.summary_kpis
+          : {
+              totalScanned: analytics.summary_kpis?.totalScanned || 0,
+              maliciousDetected: analytics.summary_kpis?.maliciousDetected || 0,
+              suspiciousDetected: analytics.summary_kpis?.suspiciousDetected || 0,
+              cleanRatio: analytics.summary_kpis?.cleanRatio || '100%',
+              avgRiskScore: analytics.summary_kpis?.avgRiskScore || 0,
+              avgInferenceMs: 18,
+              avgSandboxLatencySec: 1.4,
+            };
+
+        const liveTimeline = (analytics.daily_timeline || []).map((t) => ({
+          date: t.date.slice(5),
+          malicious: t.malicious || 0,
+          suspicious: 0,
+          clean: t.clean || 0,
+        }));
+
         return {
-          metrics: MOCK_ANALYTICS_METRICS,
-          families: MOCK_FAMILY_DISTRIBUTION_ANALYTICS,
-          confidenceBrackets: MOCK_CONFIDENCE_BRACKETS,
-          mitreCoverage: analytics.mitre_attack_distribution,
-          entropyDistribution: analytics.entropy_distribution,
+          metrics: liveMetrics,
+          families: (analytics.heuristic_family_tags && analytics.heuristic_family_tags.length > 0)
+            ? analytics.heuristic_family_tags
+            : [],
+          confidenceBrackets: (analytics.confidence_brackets && analytics.confidence_brackets.length > 0)
+            ? analytics.confidence_brackets
+            : MOCK_CONFIDENCE_BRACKETS,
+          mitreCoverage: analytics.mitre_attack_distribution || [],
+          entropyDistribution: analytics.entropy_distribution || {},
+          threatLevelDistribution: analytics.threat_level_distribution || {},
+          timeline: liveTimeline,
         };
       }
     } catch {
@@ -356,8 +429,12 @@ export const ThreatLensApi = {
     }
     return {
       metrics: MOCK_ANALYTICS_METRICS,
-      families: MOCK_FAMILY_DISTRIBUTION_ANALYTICS,
+      families: [],
       confidenceBrackets: MOCK_CONFIDENCE_BRACKETS,
+      mitreCoverage: [],
+      entropyDistribution: {},
+      threatLevelDistribution: {},
+      timeline: [],
     };
   },
 

@@ -17,6 +17,7 @@ import type { Column } from '../components/ui/Table';
 import { Modal } from '../components/ui/Modal';
 import { LoadingState } from '../components/ui/LoadingState';
 import { ThreatLensApi } from '../services/api';
+import { threatlensApi } from '../services/threatlensApi';
 import type { SecurityReportItem } from '../data/mockAnalyticsData';
 import { formatRelativeTime } from '../utils/formatters';
 
@@ -33,9 +34,20 @@ export const ReportsPage: React.FC = () => {
 
   const loadReports = async () => {
     setIsLoading(true);
-    const data = await ThreatLensApi.getSecurityReports();
-    setReports(data);
-    setIsLoading(false);
+    try {
+      const live = await threatlensApi.listReports();
+      if (live && live.length > 0) {
+        setReports(live);
+      } else {
+        const data = await ThreatLensApi.getSecurityReports();
+        setReports(data);
+      }
+    } catch {
+      const data = await ThreatLensApi.getSecurityReports();
+      setReports(data);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -44,11 +56,56 @@ export const ReportsPage: React.FC = () => {
 
   const handleGenerateReport = async () => {
     setIsLoading(true);
-    const created = await ThreatLensApi.createSecurityReport(newTitle, newType, newPeriod);
-    setReports((prev) => [created, ...prev]);
-    setIsGenerateModalOpen(false);
-    setSelectedReport(created);
-    setIsLoading(false);
+    try {
+      const created = await threatlensApi.createReport({
+        title: newTitle,
+        type: newType,
+        period: newPeriod,
+      });
+      setReports((prev) => [created, ...prev]);
+      setSelectedReport(created);
+    } catch {
+      const fallback = await ThreatLensApi.createSecurityReport(newTitle, newType, newPeriod);
+      setReports((prev) => [fallback, ...prev]);
+      setSelectedReport(fallback);
+    } finally {
+      setIsGenerateModalOpen(false);
+      setIsLoading(false);
+    }
+  };
+
+  const handleExportStix = (report: SecurityReportItem) => {
+    const stixBundle = {
+      type: 'bundle',
+      id: `bundle--${report.id}`,
+      spec_version: '2.1',
+      objects: [
+        {
+          type: 'report',
+          id: `report--${report.id}`,
+          name: report.title,
+          description: report.summary,
+          published: report.generatedDate || new Date().toISOString(),
+          report_types: [report.type.toLowerCase().replace(/\s+/g, '-')],
+          object_refs: (report.iocs || []).map((_, idx) => `indicator--${report.id}-${idx}`),
+        },
+        ...((report.iocs || []).map((ioc, idx) => ({
+          type: 'indicator',
+          id: `indicator--${report.id}-${idx}`,
+          name: ioc,
+          pattern: `[file:hashes.'SHA-256' = '${ioc.replace('SHA-256: ', '')}']`,
+          pattern_type: 'stix',
+          valid_from: report.generatedDate || new Date().toISOString(),
+        }))),
+      ],
+    };
+    const blob = new Blob([JSON.stringify(stixBundle, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${report.id}_STIX21.json`;
+    a.click();
+    URL.revokeObjectURL(url);
   };
 
   const reportColumns: Column<SecurityReportItem>[] = [
@@ -114,7 +171,7 @@ export const ReportsPage: React.FC = () => {
             variant="subtle"
             size="xs"
             leftIcon={<Download className="w-3 h-3" />}
-            onClick={() => alert(`Exporting STIX 2.1 JSON bundle for ${item.id}...`)}
+            onClick={() => handleExportStix(item)}
           >
             STIX 2.1
           </Button>

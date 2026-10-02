@@ -149,6 +149,9 @@ def init_db_and_migrate():
         db.behavioral_events.create_index([("event_id", pymongo.ASCENDING)], unique=True)
         db.behavioral_events.create_index([("scan_id", pymongo.ASCENDING)])
 
+        db.reports.create_index([("id", pymongo.ASCENDING)], unique=True)
+        db.reports.create_index([("created_at", pymongo.DESCENDING)])
+
         db.files.create_index([("id", pymongo.ASCENDING)], unique=True, sparse=True)
 
         # Check existing records to prevent duplicate migration
@@ -327,3 +330,40 @@ def get_all_behavioral_events(limit: int = 500) -> list:
     db = get_mongo_db()
     cursor = db.behavioral_events.find({}).limit(limit)
     return clean_docs(list(cursor))
+
+
+# =====================================================================
+# Report Operations (MongoDB Atlas ONLY)
+# =====================================================================
+
+def save_report_record(report_dict: dict) -> dict:
+    """Saves or updates an investigation report exclusively in MongoDB Atlas."""
+    init_db_and_migrate()
+    db = get_mongo_db()
+    db.reports.replace_one({"id": report_dict["id"]}, report_dict, upsert=True)
+    return report_dict
+
+
+def get_report_records(user_id: str = None, limit: int = 100) -> List[dict]:
+    """Retrieves saved reports from MongoDB Atlas sorted chronologically descending."""
+    init_db_and_migrate()
+    db = get_mongo_db()
+    query = {"user_id": user_id} if user_id else {}
+    cursor = db.reports.find(query).sort("created_at", pymongo.DESCENDING).limit(limit)
+    return clean_docs(list(cursor))
+
+
+def get_report_by_id(report_id: str) -> Optional[dict]:
+    """Finds an investigation report by unique ID from MongoDB Atlas."""
+    init_db_and_migrate()
+    db = get_mongo_db()
+    doc = db.reports.find_one({"id": report_id})
+    return clean_doc(doc)
+
+
+def delete_report_by_id(report_id: str) -> bool:
+    """Deletes an investigation report by unique ID from MongoDB Atlas."""
+    init_db_and_migrate()
+    db = get_mongo_db()
+    res = db.reports.delete_one({"id": report_id})
+    return res.deleted_count > 0

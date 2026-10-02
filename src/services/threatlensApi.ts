@@ -30,6 +30,7 @@ export interface StaticAnalysisReport {
   suspicious_apis: Record<string, string[]>;
   suspicious_strings: Array<{ pattern: string; sample: string }>;
   indicators: StaticIndicator[];
+  yara_matches?: any[];
   raw_features: Record<string, any>;
   feature_names: string[];
 }
@@ -211,6 +212,7 @@ export interface ScanResult {
   combined_verdict?: CombinedVerdict | null;
   mitre_techniques: MitreTechnique[];
   indicators: StaticIndicator[];
+  yara_matches?: any[];
   model_name?: string;
   model_version?: string;
 }
@@ -275,6 +277,10 @@ export interface AnalyticsData {
     count: number;
   }>;
   entropy_distribution: Record<string, number>;
+  summary_kpis?: any;
+  heuristic_family_tags?: any[];
+  confidence_brackets?: any[];
+  threat_level_distribution?: Record<string, number>;
 }
 
 export const threatlensApi = {
@@ -397,4 +403,76 @@ export const threatlensApi = {
   async getThreatTrends(window: '24h' | '7d' | '30d' = '7d'): Promise<ThreatTrendResponse> {
     return httpClient.request<ThreatTrendResponse>(`/threat-prediction/trends?window=${window}`);
   },
+
+  /**
+   * Investigation Reports API (Phase 4)
+   */
+  async listReports(limit: number = 50): Promise<any[]> {
+    return httpClient.request<any[]>(`/reports?limit=${limit}`);
+  },
+
+  async createReport(payload: {
+    title: string;
+    type?: string;
+    period?: string;
+    scan_id?: string;
+    filename?: string;
+    threat_score?: number;
+    classification?: string;
+    summary?: string;
+  }): Promise<any> {
+    return httpClient.request<any>('/reports', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+  },
+
+  async getReport(reportId: string): Promise<any> {
+    return httpClient.request<any>(`/reports/${reportId}`);
+  },
+
+  async deleteReport(reportId: string): Promise<any> {
+    return httpClient.request<any>(`/reports/${reportId}`, {
+      method: 'DELETE',
+    });
+  },
+
+  /**
+   * Admin User Management API (Phase 7)
+   */
+  async getAdminUsers(): Promise<{ success: boolean; users: any[] }> {
+    return httpClient.request<{ success: boolean; users: any[] }>('/admin/users');
+  },
+
+  async createAdminUser(payload: {
+    name: string;
+    email: string;
+    password: string;
+    role: string;
+    department?: string;
+  }): Promise<any> {
+    return httpClient.request<any>('/admin/users', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+  },
+
+  async updateAdminUser(userId: string, payload: {
+    name?: string;
+    role?: string;
+    department?: string;
+    status?: string;
+  }): Promise<any> {
+    return httpClient.request<any>(`/admin/users/${userId}`, {
+      method: 'PATCH',
+      body: JSON.stringify(payload),
+    });
+  },
+
+  async deleteAdminUser(userId: string): Promise<any> {
+    return httpClient.request<any>(`/admin/users/${userId}`, {
+      method: 'DELETE',
+    });
+  },
 };
+

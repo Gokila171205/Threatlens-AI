@@ -137,13 +137,13 @@ export const FileAnalysisPage: React.FC = () => {
         extractedIps: (staticData.suspicious_strings || [])
           .filter((s) => /^\d+\.\d+\.\d+\.\d+/.test(s.sample))
           .map((s) => s.sample),
-        yaraMatches: (realScan.indicators || []).map((ind) => ({
-          ruleName: ind.type,
-          category: 'ThreatLens ML/Heuristics',
-          severity: ind.severity as any,
-          description: ind.description,
-          author: 'ThreatLens AI Core',
-          matchedStrings: [ind.type, ind.description.slice(0, 45)],
+        yaraMatches: (realScan.yara_matches || staticData.yara_matches || []).map((ym: any) => ({
+          ruleName: ym.rule_name,
+          category: ym.meta?.technique || (ym.tags && ym.tags.length > 0 ? ym.tags.join(', ') : 'Signature Rule'),
+          severity: (ym.severity || ym.meta?.severity || 'medium') as any,
+          description: ym.description || ym.meta?.description || `YARA signature match: ${ym.rule_name}`,
+          author: ym.meta?.author || 'ThreatLens AI Research',
+          matchedStrings: ym.matched_strings || [ym.rule_name],
         })),
       });
 
@@ -600,24 +600,30 @@ export const FileAnalysisPage: React.FC = () => {
             </div>
 
             <div className="space-y-2">
-              {report.yaraMatches.map((yara) => (
-                <div key={yara.ruleName} className="p-3 bg-slate-50 dark:bg-slate-950 rounded border border-slate-200 dark:border-slate-800 space-y-1.5">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <span className="text-xs font-bold text-red-700 dark:text-red-400">{yara.ruleName}</span>
-                      <Badge severity={yara.severity} size="xs">{yara.severity}</Badge>
-                      <span className="text-2xs text-slate-500">[{yara.category}]</span>
-                    </div>
-                    <span className="text-2xs text-emerald-700 dark:text-emerald-400 font-bold">MATCHED</span>
-                  </div>
-                  <p className="text-2xs text-slate-600 dark:text-slate-400">{yara.description}</p>
-                  <div className="flex flex-wrap gap-1.5 pt-1">
-                    {yara.matchedStrings.map((str, i) => (
-                      <MonoText key={i} value={str} highlight />
-                    ))}
-                  </div>
+              {report.yaraMatches.length === 0 ? (
+                <div className="p-3 bg-slate-50 dark:bg-slate-950 rounded border border-slate-200 dark:border-slate-800 text-xs text-slate-500 italic">
+                  Zero YARA rule signature hits triggered across the compiled rule repository.
                 </div>
-              ))}
+              ) : (
+                report.yaraMatches.map((yara) => (
+                  <div key={yara.ruleName} className="p-3 bg-slate-50 dark:bg-slate-950 rounded border border-slate-200 dark:border-slate-800 space-y-1.5">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs font-bold text-red-700 dark:text-red-400">{yara.ruleName}</span>
+                        <Badge severity={yara.severity} size="xs">{yara.severity}</Badge>
+                        <span className="text-2xs text-slate-500">[{yara.category}]</span>
+                      </div>
+                      <span className="text-2xs text-emerald-700 dark:text-emerald-400 font-bold">MATCHED</span>
+                    </div>
+                    <p className="text-2xs text-slate-600 dark:text-slate-400">{yara.description}</p>
+                    <div className="flex flex-wrap gap-1.5 pt-1">
+                      {yara.matchedStrings.map((str, i) => (
+                        <MonoText key={i} value={str} highlight />
+                      ))}
+                    </div>
+                  </div>
+                ))
+              )}
             </div>
           </div>
 

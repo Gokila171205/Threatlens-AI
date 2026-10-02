@@ -1,123 +1,137 @@
 import type { UserRole } from '../types';
 import type { LoginCredentials, UserSession } from '../types/auth';
+import { API_BASE_URL, httpClient } from './httpClient';
 
-const TOKEN_KEY = 'threatlens_session_token';
-const USER_KEY = 'threatlens_user_session';
+const USER_SESSION_KEY = 'threatlens_user_session';
 
-export const DEMO_USERS: Record<UserRole, UserSession> = {
+/**
+ * Standard test credentials for development/evaluation quick-login.
+ * Every persona calls the real backend POST /api/auth/login endpoint.
+ */
+const ROLE_TEST_CREDENTIALS: Record<UserRole, { email: string; pass: string }> = {
   'Security Analyst': {
-    id: 'usr_soc_9412',
-    name: 'Alex Rivera',
-    email: 'a.rivera@defense.threatlens.ai',
-    role: 'Security Analyst',
-    department: 'Tier 3 Incident Response',
-    clearanceLevel: 'DEFCON-2 / RESTRICTED',
-    token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.analyst_token_9412',
-    expiresAt: new Date(Date.now() + 8 * 3600 * 1000).toISOString(),
-    avatarInitials: 'AR',
+    email: 'analyst@threatlens.ai',
+    pass: 'analyst123',
   },
   'SOC Team Member': {
-    id: 'usr_soc_8820',
-    name: 'Sarah Chen',
-    email: 's.chen@soc.threatlens.ai',
-    role: 'SOC Team Member',
-    department: 'Global SOC Operations Center',
-    clearanceLevel: 'DEFCON-3 / CONFIDENTIAL',
-    token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.soc_token_8820',
-    expiresAt: new Date(Date.now() + 8 * 3600 * 1000).toISOString(),
-    avatarInitials: 'SC',
+    email: 'soc@threatlens.ai',
+    pass: 'soc123',
   },
   'Administrator': {
-    id: 'usr_admin_001',
-    name: 'Marcus Vance',
-    email: 'm.vance@admin.threatlens.ai',
-    role: 'Administrator',
-    department: 'Cyber Infrastructure & SecOps',
-    clearanceLevel: 'DEFCON-1 / TOP SECRET',
-    token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.admin_token_001',
-    expiresAt: new Date(Date.now() + 8 * 3600 * 1000).toISOString(),
-    avatarInitials: 'MV',
+    email: 'admin@threatlens.ai',
+    pass: 'admin123',
   },
   'Researcher': {
-    id: 'usr_res_3309',
-    name: 'Dr. Elena Rostova',
-    email: 'e.rostova@lab.threatlens.ai',
-    role: 'Researcher',
-    department: 'AI Neural Malware Lab',
-    clearanceLevel: 'DEFCON-2 / SCI RESEARCH',
-    token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.researcher_token_3309',
-    expiresAt: new Date(Date.now() + 8 * 3600 * 1000).toISOString(),
-    avatarInitials: 'ER',
+    email: 'researcher@threatlens.ai',
+    pass: 'research123',
   },
 };
 
 export const AuthService = {
   /**
-   * Authenticate user with credentials or role key.
+   * Authenticate user against FastAPI backend POST /api/auth/login
+   * Validates credentials, receives genuine JWT, and loads /api/auth/me profile.
    */
   login: async (credentials: LoginCredentials): Promise<UserSession> => {
-    // Simulate API network latency
-    await new Promise((res) => setTimeout(res, 450));
+    const email = credentials.email.trim();
+    const password = credentials.password;
 
-    const emailLower = credentials.email.toLowerCase().trim();
-
-    // Check matching demo email or role keyword
-    let matchedUser: UserSession | undefined;
-
-    if (emailLower.includes('analyst') || emailLower === DEMO_USERS['Security Analyst'].email) {
-      matchedUser = DEMO_USERS['Security Analyst'];
-    } else if (emailLower.includes('soc') || emailLower === DEMO_USERS['SOC Team Member'].email) {
-      matchedUser = DEMO_USERS['SOC Team Member'];
-    } else if (emailLower.includes('admin') || emailLower === DEMO_USERS['Administrator'].email) {
-      matchedUser = DEMO_USERS['Administrator'];
-    } else if (emailLower.includes('research') || emailLower === DEMO_USERS['Researcher'].email) {
-      matchedUser = DEMO_USERS['Researcher'];
-    } else if (credentials.password && credentials.password.length >= 6) {
-      // Default to Security Analyst for generic valid credentials
-      matchedUser = {
-        ...DEMO_USERS['Security Analyst'],
-        email: credentials.email,
-        name: credentials.email.split('@')[0].replace('.', ' '),
-      };
+    if (!email || !password) {
+      throw new Error('Both email and password are required.');
     }
 
-    if (!matchedUser) {
-      throw new Error('Invalid security credentials or unrecognized analyst clearance.');
+    let response: Response;
+    try {
+      response = await fetch(`${API_BASE_URL}/auth/login`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+        },
+        body: JSON.stringify({ email, password }),
+      });
+    } catch {
+      throw new Error('Failed to connect to authentication server. Verify backend is running.');
     }
 
-    // Persist session securely
-    const session = {
-      ...matchedUser,
-      expiresAt: new Date(Date.now() + 8 * 3600 * 1000).toISOString(),
+    if (!response.ok) {
+      let errMsg = 'Invalid email or password.';
+      try {
+        const errJson = await response.json();
+        errMsg = errJson.message || errJson.detail?.message || errJson.detail || errMsg;
+      } catch {
+        // use default
+      }
+      throw new Error(typeof errMsg === 'string' ? errMsg : 'Invalid email or password.');
+    }
+
+    const data = await response.json();
+    const token: string = data.token;
+    if (!token) {
+      throw new Error('Authentication response did not provide an access token.');
+    }
+
+    // Securely persist server-signed JWT
+    httpClient.setAuthToken(token);
+    // Also set legacy key if any component reads it
+    localStorage.setItem('threatlens_session_token', token);
+
+    // Verify session with GET /api/auth/me
+    let meData: any;
+    try {
+      meData = await httpClient.request<{ success: boolean; user: any }>('/auth/me');
+    } catch {
+      meData = { user: data.user };
+    }
+
+    const u = meData?.user || data.user;
+    const role: UserRole = (u.role || 'Security Analyst') as UserRole;
+
+    const initials = (u.name || 'User')
+      .split(' ')
+      .map((part: string) => part[0])
+      .join('')
+      .toUpperCase()
+      .slice(0, 2);
+
+    const session: UserSession = {
+      id: u.id,
+      name: u.name,
+      email: u.email,
+      role,
+      department: u.department || (role === 'Administrator' ? 'SecOps & Infrastructure' : 'Tier 3 Incident Response'),
+      clearanceLevel: role === 'Administrator' ? 'DEFCON-1 / TOP SECRET' : 'DEFCON-2 / RESTRICTED',
+      token,
+      expiresAt: new Date(Date.now() + 24 * 3600 * 1000).toISOString(),
+      avatarInitials: initials || 'TL',
     };
 
-    localStorage.setItem(TOKEN_KEY, session.token);
-    localStorage.setItem(USER_KEY, JSON.stringify(session));
-
+    localStorage.setItem(USER_SESSION_KEY, JSON.stringify(session));
     return session;
   },
 
   /**
-   * Directly login with a persona for seamless SOC testing
+   * Development-only quick-login: Authenticates the selected role persona
+   * through the real backend API using standard seeded credentials.
    */
   loginAsRole: async (role: UserRole): Promise<UserSession> => {
-    await new Promise((res) => setTimeout(res, 250));
-    const session = DEMO_USERS[role];
-    localStorage.setItem(TOKEN_KEY, session.token);
-    localStorage.setItem(USER_KEY, JSON.stringify(session));
-    return session;
+    const creds = ROLE_TEST_CREDENTIALS[role];
+    if (!creds) {
+      throw new Error(`Unrecognized persona role: ${role}`);
+    }
+    return AuthService.login({ email: creds.email, password: creds.pass });
   },
 
   /**
-   * Retrieve active session from storage
+   * Retrieves active authenticated session from local storage.
    */
   getCurrentSession: (): UserSession | null => {
     try {
-      const token = localStorage.getItem(TOKEN_KEY);
-      const userStr = localStorage.getItem(USER_KEY);
+      const token = httpClient.getAuthToken() || localStorage.getItem('threatlens_session_token');
+      const userStr = localStorage.getItem(USER_SESSION_KEY);
       if (!token || !userStr) return null;
+
       const user: UserSession = JSON.parse(userStr);
-      // Check expiration
       if (new Date(user.expiresAt).getTime() < Date.now()) {
         AuthService.logout();
         return null;
@@ -130,10 +144,11 @@ export const AuthService = {
   },
 
   /**
-   * Destroy user session
+   * Destroys active user session and clears all security tokens.
    */
   logout: (): void => {
-    localStorage.removeItem(TOKEN_KEY);
-    localStorage.removeItem(USER_KEY);
+    httpClient.removeAuthToken();
+    localStorage.removeItem('threatlens_session_token');
+    localStorage.removeItem(USER_SESSION_KEY);
   },
 };

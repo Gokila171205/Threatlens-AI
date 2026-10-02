@@ -9,7 +9,7 @@ from typing import Any, Dict, List, Optional
 import uuid
 from fastapi import APIRouter, Depends, HTTPException, status
 
-from app.api.deps import get_optional_current_user
+from app.api.deps import get_current_user, require_role
 from app.schemas.scan import (
     BehavioralAnalysisReport,
     BehavioralEvent,
@@ -33,7 +33,7 @@ router = APIRouter(prefix="/behavioral", tags=["Behavioral Analytics"])
 @router.get("/{scan_id}", response_model=BehavioralAnalysisReport)
 async def get_behavioral_report(
     scan_id: str,
-    current_user: Optional[dict] = Depends(get_optional_current_user),
+    current_user: dict = Depends(get_current_user),
 ):
     """
     Retrieves full behavioral telemetry report, detected indicators,
@@ -60,7 +60,7 @@ async def get_behavioral_report(
 @router.get("/{scan_id}/summary", response_model=BehavioralSummaryResponse)
 async def get_behavioral_summary(
     scan_id: str,
-    current_user: Optional[dict] = Depends(get_optional_current_user),
+    current_user: dict = Depends(get_current_user),
 ):
     """
     Retrieves concise behavioral summary metrics for SOC dashboard and quick-view panels.
@@ -90,7 +90,7 @@ async def get_behavioral_summary(
 @router.post("/events", response_model=BehavioralAnalysisReport, status_code=status.HTTP_201_CREATED)
 async def ingest_behavioral_events(
     payload: BehavioralEventSubmission,
-    current_user: Optional[dict] = Depends(get_optional_current_user),
+    current_user: dict = Depends(require_role(["Security Analyst", "SOC Team Member", "Administrator"])),
 ):
     """
     Ingests normalized behavioral event records for a scan without executing files on the host.

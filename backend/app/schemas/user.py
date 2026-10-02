@@ -20,6 +20,8 @@ class UserResponse(UserBase):
 class LoginResponse(BaseModel):
     success: bool
     token: str
+    access_token: Optional[str] = None
+    token_type: Optional[str] = "bearer"
     user: UserResponse
 
 class RegisterResponse(BaseModel):

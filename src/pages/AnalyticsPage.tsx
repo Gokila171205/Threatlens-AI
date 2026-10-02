@@ -31,6 +31,13 @@ export const AnalyticsPage: React.FC = () => {
 
   const [families, setFamilies] = useState<MalwareFamilyShare[]>([]);
   const [confidenceBrackets, setConfidenceBrackets] = useState<ConfidenceBracket[]>([]);
+  const [timeline, setTimeline] = useState<any[]>([]);
+  const [threatLevels, setThreatLevels] = useState<Record<string, number>>({
+    CRITICAL: 0,
+    HIGH: 0,
+    MEDIUM: 0,
+    LOW: 0,
+  });
 
   useEffect(() => {
     async function loadData() {
@@ -39,6 +46,19 @@ export const AnalyticsPage: React.FC = () => {
       setMetrics(data.metrics);
       setFamilies(data.families);
       setConfidenceBrackets(data.confidenceBrackets);
+      if (data.timeline && data.timeline.length > 0) {
+        setTimeline(data.timeline);
+      } else {
+        setTimeline(MOCK_TIMELINE_DATA);
+      }
+      if (data.threatLevelDistribution) {
+        setThreatLevels({
+          CRITICAL: data.threatLevelDistribution.CRITICAL || 0,
+          HIGH: data.threatLevelDistribution.HIGH || 0,
+          MEDIUM: data.threatLevelDistribution.MEDIUM || 0,
+          LOW: data.threatLevelDistribution.LOW || 0,
+        });
+      }
       setIsLoading(false);
     }
     loadData();
@@ -142,7 +162,7 @@ export const AnalyticsPage: React.FC = () => {
             <span className="text-2xs text-slate-500">Range: {dateRange.toUpperCase()}</span>
           </div>
 
-          <ThreatTimelineChart data={MOCK_TIMELINE_DATA} />
+          <ThreatTimelineChart data={timeline} />
         </div>
 
         {/* Section 2: Severity Distribution Ratios */}
@@ -152,82 +172,103 @@ export const AnalyticsPage: React.FC = () => {
               <ShieldAlert className="w-4 h-4 text-amber-600 dark:text-amber-400" />
               <span>2. Severity Trend & Incident Ratio Breakdown</span>
             </h2>
-            <span className="text-2xs text-slate-500">Total: 1,429 Detections</span>
+            <span className="text-2xs text-slate-500">
+              Total: {metrics.totalScanned} Scans
+            </span>
           </div>
 
-          <div className="space-y-3 text-2xs pt-2">
-            <div className="space-y-1">
-              <div className="flex justify-between font-bold">
-                <span className="text-red-700 dark:text-red-400">Critical Severity (Risk ≥ 85)</span>
-                <span className="text-slate-800 dark:text-slate-200">257 Threats (18%)</span>
-              </div>
-              <div className="w-full bg-slate-100 dark:bg-slate-950 h-2 rounded overflow-hidden border border-slate-200 dark:border-slate-800">
-                <div className="bg-red-500 h-full w-[18%]" />
-              </div>
-            </div>
+          {(() => {
+            const total = Math.max(metrics.totalScanned, 1);
+            const critPct = Math.round(((threatLevels.CRITICAL || 0) / total) * 100);
+            const highPct = Math.round(((threatLevels.HIGH || 0) / total) * 100);
+            const medPct = Math.round(((threatLevels.MEDIUM || 0) / total) * 100);
+            const lowPct = Math.round(((threatLevels.LOW || 0) / total) * 100);
 
-            <div className="space-y-1">
-              <div className="flex justify-between font-bold">
-                <span className="text-orange-800 dark:text-orange-400">High Severity (Risk 70-84)</span>
-                <span className="text-slate-800 dark:text-slate-200">400 Threats (28%)</span>
-              </div>
-              <div className="w-full bg-slate-100 dark:bg-slate-950 h-2 rounded overflow-hidden border border-slate-200 dark:border-slate-800">
-                <div className="bg-orange-500 h-full w-[28%]" />
-              </div>
-            </div>
+            return (
+              <div className="space-y-3 text-2xs pt-2">
+                <div className="space-y-1">
+                  <div className="flex justify-between font-bold">
+                    <span className="text-red-700 dark:text-red-400">Critical Severity (Risk ≥ 85)</span>
+                    <span className="text-slate-800 dark:text-slate-200">{threatLevels.CRITICAL || 0} Threats ({critPct}%)</span>
+                  </div>
+                  <div className="w-full bg-slate-100 dark:bg-slate-950 h-2 rounded overflow-hidden border border-slate-200 dark:border-slate-800">
+                    <div className="bg-red-500 h-full transition-all" style={{ width: `${critPct}%` }} />
+                  </div>
+                </div>
 
-            <div className="space-y-1">
-              <div className="flex justify-between font-bold">
-                <span className="text-amber-800 dark:text-amber-400">Medium Severity (Risk 40-69)</span>
-                <span className="text-slate-800 dark:text-slate-200">486 Threats (34%)</span>
-              </div>
-              <div className="w-full bg-slate-100 dark:bg-slate-950 h-2 rounded overflow-hidden border border-slate-200 dark:border-slate-800">
-                <div className="bg-amber-500 h-full w-[34%]" />
-              </div>
-            </div>
+                <div className="space-y-1">
+                  <div className="flex justify-between font-bold">
+                    <span className="text-orange-800 dark:text-orange-400">High Severity (Risk 70-84)</span>
+                    <span className="text-slate-800 dark:text-slate-200">{threatLevels.HIGH || 0} Threats ({highPct}%)</span>
+                  </div>
+                  <div className="w-full bg-slate-100 dark:bg-slate-950 h-2 rounded overflow-hidden border border-slate-200 dark:border-slate-800">
+                    <div className="bg-orange-500 h-full transition-all" style={{ width: `${highPct}%` }} />
+                  </div>
+                </div>
 
-            <div className="space-y-1">
-              <div className="flex justify-between font-bold">
-                <span className="text-emerald-800 dark:text-emerald-400">Low Severity (Risk &lt; 40)</span>
-                <span className="text-slate-800 dark:text-slate-200">286 Threats (20%)</span>
+                <div className="space-y-1">
+                  <div className="flex justify-between font-bold">
+                    <span className="text-amber-800 dark:text-amber-400">Medium Severity (Risk 40-69)</span>
+                    <span className="text-slate-800 dark:text-slate-200">{threatLevels.MEDIUM || 0} Threats ({medPct}%)</span>
+                  </div>
+                  <div className="w-full bg-slate-100 dark:bg-slate-950 h-2 rounded overflow-hidden border border-slate-200 dark:border-slate-800">
+                    <div className="bg-amber-500 h-full transition-all" style={{ width: `${medPct}%` }} />
+                  </div>
+                </div>
+
+                <div className="space-y-1">
+                  <div className="flex justify-between font-bold">
+                    <span className="text-emerald-800 dark:text-emerald-400">Low Severity (Risk &lt; 40)</span>
+                    <span className="text-slate-800 dark:text-slate-200">{threatLevels.LOW || 0} Threats ({lowPct}%)</span>
+                  </div>
+                  <div className="w-full bg-slate-100 dark:bg-slate-950 h-2 rounded overflow-hidden border border-slate-200 dark:border-slate-800">
+                    <div className="bg-emerald-500 h-full transition-all" style={{ width: `${lowPct}%` }} />
+                  </div>
+                </div>
               </div>
-              <div className="w-full bg-slate-100 dark:bg-slate-950 h-2 rounded overflow-hidden border border-slate-200 dark:border-slate-800">
-                <div className="bg-emerald-500 h-full w-[20%]" />
-              </div>
-            </div>
-          </div>
+            );
+          })()}
         </div>
 
-        {/* Section 3: Malware Family Distribution */}
+        {/* Section 3: Heuristic & YARA Signature Tags */}
         <div className="p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded space-y-3 shadow-2xs">
           <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-2">
-            <h2 className="text-xs font-semibold uppercase tracking-wider text-slate-900 dark:text-slate-100 flex items-center gap-2">
-              <Layers className="w-4 h-4 text-sky-600 dark:text-sky-400" />
-              <span>3. Malware Family Share Distribution</span>
-            </h2>
-            <span className="text-2xs text-slate-500">6 Primary Clusters</span>
+            <div>
+              <h2 className="text-xs font-semibold uppercase tracking-wider text-slate-900 dark:text-slate-100 flex items-center gap-2">
+                <Layers className="w-4 h-4 text-sky-600 dark:text-sky-400" />
+                <span>3. Heuristic & YARA Signature Tags</span>
+              </h2>
+              <span className="text-2xs text-slate-400">Rule-based tags • EMBER RF is binary classifier</span>
+            </div>
+            <span className="text-2xs text-slate-500">{families.length} Clusters</span>
           </div>
 
           <div className="space-y-2.5">
-            {families.map((fam) => (
-              <div key={fam.family} className="space-y-1 text-2xs">
-                <div className="flex justify-between">
-                  <div className="flex items-center gap-2">
-                    <span className="font-bold text-slate-900 dark:text-slate-100">{fam.family}</span>
-                    <span className="text-slate-500">({fam.category})</span>
-                  </div>
-                  <span className="font-bold text-slate-800 dark:text-slate-200">{fam.count} ({fam.percentage}%)</span>
-                </div>
-                <div className="w-full bg-slate-100 dark:bg-slate-950 h-1.5 rounded overflow-hidden border border-slate-200 dark:border-slate-850">
-                  <div
-                    className={`h-full ${
-                      fam.severity === 'critical' ? 'bg-red-500' : fam.severity === 'high' ? 'bg-orange-500' : 'bg-amber-500'
-                    }`}
-                    style={{ width: `${fam.percentage}%` }}
-                  />
-                </div>
+            {families.length === 0 ? (
+              <div className="p-3 bg-slate-50 dark:bg-slate-950 rounded border border-slate-200 dark:border-slate-800 text-xs text-slate-500 italic">
+                Zero heuristic threat signatures recorded in current database scans.
               </div>
-            ))}
+            ) : (
+              families.map((fam) => (
+                <div key={fam.family} className="space-y-1 text-2xs">
+                  <div className="flex justify-between">
+                    <div className="flex items-center gap-2">
+                      <span className="font-bold text-slate-900 dark:text-slate-100">{fam.family}</span>
+                      <span className="text-slate-500 text-2xs">({fam.category})</span>
+                    </div>
+                    <span className="font-bold text-slate-800 dark:text-slate-200">{fam.count} ({fam.percentage}%)</span>
+                  </div>
+                  <div className="w-full bg-slate-100 dark:bg-slate-950 h-1.5 rounded overflow-hidden border border-slate-200 dark:border-slate-850">
+                    <div
+                      className={`h-full ${
+                        fam.severity === 'critical' ? 'bg-red-500' : fam.severity === 'high' ? 'bg-orange-500' : 'bg-amber-500'
+                      }`}
+                      style={{ width: `${Math.min(fam.percentage, 100)}%` }}
+                    />
+                  </div>
+                </div>
+              ))
+            )}
           </div>
         </div>
 

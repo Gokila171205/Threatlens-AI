@@ -7,7 +7,7 @@ and cross-scan file risk history tracking.
 from typing import Optional
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 
-from app.api.deps import get_optional_current_user
+from app.api.deps import get_current_user
 from app.schemas.scan import (
     FileRiskHistoryResponse,
     ThreatPredictionReport,
@@ -23,7 +23,7 @@ router = APIRouter(prefix="/threat-prediction", tags=["Threat Prediction & Risk 
 async def get_threat_trends(
     window: Optional[str] = Query(None, description="Time window for analysis: 24h, 7d, or 30d"),
     time_window: Optional[str] = Query(None, description="Alias for window: 24h, 7d, or 30d"),
-    current_user: Optional[dict] = Depends(get_optional_current_user),
+    current_user: dict = Depends(get_current_user),
 ):
     """
     Computes empirical threat metrics and detection trajectories across the specified window.
@@ -38,7 +38,7 @@ async def get_threat_trends(
 @router.get("/{scan_id}", response_model=ThreatPredictionReport)
 async def get_threat_risk_assessment(
     scan_id: str,
-    current_user: Optional[dict] = Depends(get_optional_current_user),
+    current_user: dict = Depends(get_current_user),
 ):
     """
     Retrieves full Threat Prediction Assessment report for a specific scan.
@@ -57,7 +57,7 @@ async def get_threat_risk_assessment(
 @router.get("/{scan_id}/history", response_model=FileRiskHistoryResponse)
 async def get_scan_file_history(
     scan_id: str,
-    current_user: Optional[dict] = Depends(get_optional_current_user),
+    current_user: dict = Depends(get_current_user),
 ):
     """
     Retrieves chronological scan history for the binary matching the scan's SHA-256 hash.

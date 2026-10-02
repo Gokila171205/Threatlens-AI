@@ -11,7 +11,7 @@ from typing import List, Optional
 
 from fastapi import APIRouter, Depends, File, HTTPException, Query, UploadFile, status
 
-from app.api.deps import get_optional_current_user
+from app.api.deps import get_current_user, require_role
 from app.schemas.scan import (
     BehavioralSubmission,
     ScanResponse,
@@ -32,6 +32,7 @@ from app.services.db import (
     save_scan_record,
 )
 from app.services.static_analysis import extract_static_features
+from app.services.yara_service import scan_file_with_yara
 
 
 router = APIRouter(prefix="/scans", tags=["Scans & Malware Analysis"])
@@ -46,7 +47,7 @@ def calculate_hashes(data: bytes):
 @router.post("/file", response_model=ScanResponse, status_code=status.HTTP_201_CREATED)
 async def scan_file_upload(
     file: UploadFile = File(...),
-    current_user: Optional[dict] = Depends(get_optional_current_user),
+    current_user: dict = Depends(require_role(["Security Analyst", "Researcher", "Administrator"])),
 ):
     """
     Uploads a binary/file and executes complete safe static malware analysis
@@ -69,7 +70,11 @@ async def scan_file_upload(
     raw_features = static_result["raw_features"]
     report = static_result["report"]
 
-    # 2. Machine Learning Inference
+    # 2. Real YARA Rule Matching (compiled rule execution against bytes)
+    yara_matches = scan_file_with_yara(file_bytes)
+    report["yara_matches"] = yara_matches
+
+    # 3. Machine Learning Inference
     prediction = classifier_service.predict(raw_features)
 
     threat_score = prediction["threat_score"]
@@ -77,7 +82,12 @@ async def scan_file_upload(
     threat_level = prediction["threat_level"]
     confidence = prediction["confidence"]
 
-    # 3. Combined Initial Verdict (static-only until behavioral telemetry added)
+    # If critical YARA matches found, elevate threat score if model was uncertain
+    if yara_matches and threat_score < 60:
+        threat_score = max(threat_score, 65)
+        threat_level = "HIGH" if threat_score < 80 else "CRITICAL"
+
+    # 4. Combined Initial Verdict (static-only until behavioral telemetry added)
     combined = compute_combined_threat_score(threat_score, classification, None)
 
     scan_id = str(uuid.uuid4())
@@ -103,6 +113,7 @@ async def scan_file_upload(
         "combined_verdict": combined,
         "mitre_techniques": [],
         "indicators": report.get("indicators", []),
+        "yara_matches": yara_matches,
         "model_name": prediction.get("model_info", {}).get("model_name", "EMBER Grouped Random Forest"),
         "model_version": prediction.get("model_info", {}).get("version", "ember-grouped-v1"),
     }
@@ -120,6 +131,8 @@ async def scan_file_upload(
         ]
         if report.get("indicators"):
             desc_parts.append(f"Primary indicator: {report['indicators'][0]['description']}")
+        if yara_matches:
+            desc_parts.append(f"YARA matched: {', '.join(y['rule_name'] for y in yara_matches[:2])}.")
 
         alert_record = {
             "id": alert_id,
@@ -146,7 +159,7 @@ async def scan_file_upload(
 async def list_scans(
     limit: int = Query(50, ge=1, le=100),
     classification: Optional[str] = None,
-    current_user: Optional[dict] = Depends(get_optional_current_user),
+    current_user: dict = Depends(get_current_user),
 ):
     """
     Returns scan history with threat scores and verdicts.
@@ -177,7 +190,7 @@ async def list_scans(
 @router.get("/{scan_id}", response_model=ScanResponse)
 async def get_scan_details(
     scan_id: str,
-    current_user: Optional[dict] = Depends(get_optional_current_user),
+    current_user: dict = Depends(get_current_user),
 ):
     """
     Retrieves full scan analysis report including static metrics,
@@ -196,7 +209,7 @@ async def get_scan_details(
 async def ingest_behavioral_telemetry(
     scan_id: str,
     payload: BehavioralSubmission,
-    current_user: Optional[dict] = Depends(get_optional_current_user),
+    current_user: dict = Depends(require_role(["Security Analyst", "SOC Team Member", "Administrator"])),
 ):
     """
     Milestone 3: Ingests dynamic sandbox telemetry without executing binaries on host.

@@ -4,7 +4,7 @@ from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.core.config import settings
-from app.api.routes import auth, files, scans, alerts, monitoring, behavioral, threat_prediction
+from app.api.routes import auth, files, scans, alerts, monitoring, behavioral, threat_prediction, reports, admin
 from app.services.user_service import seed_admin_if_empty
 from app.services.seed_data import seed_scans_and_alerts_if_empty
 
@@ -64,6 +64,8 @@ for prefix in ["/api", "/api/v1"]:
     app.include_router(monitoring.router, prefix=prefix, tags=["monitoring"])
     app.include_router(behavioral.router, prefix=prefix, tags=["behavioral"])
     app.include_router(threat_prediction.router, prefix=prefix, tags=["threat-prediction"])
+    app.include_router(reports.router, prefix=prefix, tags=["reports"])
+    app.include_router(admin.router, prefix=prefix, tags=["admin"])
 
 @app.on_event("startup")
 async def startup_event():

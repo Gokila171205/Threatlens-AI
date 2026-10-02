@@ -12,4 +12,6 @@ pefile
 joblib
 pymongo[srv]
 dnspython
-
+plyara
+yara-python
+mongomock

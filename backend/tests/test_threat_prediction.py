@@ -26,7 +26,16 @@ from app.services.threat_prediction_service import (
 )
 from app.services.db import get_db
 
-client = TestClient(app)
+from app.core.security import create_access_token
+
+_analyst_jwt = create_access_token({
+    "sub": "analyst@threatlens.ai",
+    "id": "test-analyst-id",
+    "email": "analyst@threatlens.ai",
+    "role": "Security Analyst",
+    "name": "Security Analyst",
+})
+client = TestClient(app, headers={"Authorization": f"Bearer {_analyst_jwt}"})
 
 
 def test_threat_risk_score_static_only():

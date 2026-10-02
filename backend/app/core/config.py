@@ -15,7 +15,7 @@ class Settings(BaseSettings):
     host: str = "0.0.0.0"
     port: int = 8000
     allowed_origins: str = "http://localhost:5173,http://localhost:3000,http://127.0.0.1:5173,http://localhost:8000"
-    jwt_secret: str = "threatlens-secret-key"
+    jwt_secret: str = "threatlens-enterprise-secret-key-32chars-minimum-sha256"
     max_upload_size_mb: int = 50
     upload_directory: str = "storage/uploads"
     threat_model_path: str = "app/ml/models/malware_classifier_ember_grouped.joblib"
@@ -29,6 +29,13 @@ class Settings(BaseSettings):
     @property
     def cors_origins(self) -> List[str]:
         return [origin.strip() for origin in self.allowed_origins.split(",") if origin.strip()]
+
+    @property
+    def secure_jwt_secret(self) -> str:
+        sec = self.jwt_secret or "threatlens-enterprise-secret-key-32chars-minimum-sha256"
+        if len(sec) < 32:
+            return f"{sec}-threatlens-enterprise-32char-padded-secret"
+        return sec
         
     model_config = SettingsConfigDict(
         env_file=_env_files,

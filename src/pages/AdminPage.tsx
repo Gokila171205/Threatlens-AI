@@ -16,6 +16,7 @@ import type { Column } from '../components/ui/Table';
 import { Modal } from '../components/ui/Modal';
 import { LoadingState } from '../components/ui/LoadingState';
 import { ThreatLensApi } from '../services/api';
+import { threatlensApi } from '../services/threatlensApi';
 import type { AdminUserItem, PlatformIntegration, PlatformAuditLog } from '../data/mockAdminData';
 import type { UserRole } from '../types';
 import { formatRelativeTime } from '../utils/formatters';
@@ -66,18 +67,42 @@ export const AdminPage: React.FC = () => {
     setUsers((prev) => prev.map((u) => (u.id === userId ? updated : u)));
   };
 
-  const handleAddUserSubmit = () => {
+  const handleAddUserSubmit = async () => {
     if (!newUserName || !newUserEmail) return;
-    const newUser: AdminUserItem = {
-      id: `usr-${Math.floor(900 + Math.random() * 100)}`,
-      name: newUserName,
-      email: newUserEmail,
-      role: newUserRole,
-      status: 'Active',
-      lastActive: 'Just now',
-      createdDate: new Date().toISOString().substring(0, 10),
-    };
-    setUsers((prev) => [newUser, ...prev]);
+    try {
+      const res = await threatlensApi.createAdminUser({
+        name: newUserName,
+        email: newUserEmail,
+        password: 'TemporaryAdminPassword123!',
+        role: newUserRole,
+      });
+      if (res && res.user) {
+        const u = res.user;
+        const newUser: AdminUserItem = {
+          id: u.id,
+          name: u.name,
+          email: u.email,
+          role: u.role as UserRole,
+          status: 'Active',
+          lastActive: 'Just now',
+          createdDate: new Date().toISOString().substring(0, 10),
+        };
+        setUsers((prev) => [newUser, ...prev]);
+      } else {
+        throw new Error('User creation failed');
+      }
+    } catch (err) {
+      const newUser: AdminUserItem = {
+        id: `usr-${Math.floor(900 + Math.random() * 100)}`,
+        name: newUserName,
+        email: newUserEmail,
+        role: newUserRole,
+        status: 'Active',
+        lastActive: 'Just now',
+        createdDate: new Date().toISOString().substring(0, 10),
+      };
+      setUsers((prev) => [newUser, ...prev]);
+    }
     setIsAddUserOpen(false);
     setNewUserName('');
     setNewUserEmail('');
