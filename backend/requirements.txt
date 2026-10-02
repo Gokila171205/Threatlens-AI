@@ -7,3 +7,9 @@ PyJWT
 passlib[bcrypt]
 pytest
 httpx
+numpy
+pefile
+joblib
+pymongo[srv]
+dnspython
+
