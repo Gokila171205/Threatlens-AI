@@ -1,5 +1,4 @@
 import { MOCK_MALWARE_SAMPLES, MOCK_ALERTS, MOCK_NOTIFICATIONS, MOCK_USER } from '../data/mockData';
-import { SAMPLE_STATIC_REPORTS } from '../data/mockStaticAnalysisData';
 import { MOCK_CLASSIFICATION_REPORT, MOCK_FAMILY_CATALOG } from '../data/mockClassificationData';
 import {
   MOCK_ACTIVE_THREATS,
@@ -198,24 +197,68 @@ export const ThreatLensApi = {
   },
 
   // Static Analysis Report API
-  getStaticAnalysisReport: async (_filename: string): Promise<StaticAnalysisReport> => {
-    await new Promise((res) => setTimeout(res, 120));
-    return SAMPLE_STATIC_REPORTS['invoice.exe'];
+  getStaticAnalysisReport: async (idOrFilename: string): Promise<StaticAnalysisReport> => {
+    try {
+      const scans = await threatlensApi.listScans(20);
+      const match = scans.find(
+        (s) => s.id === idOrFilename || s.filename === idOrFilename || s.sha256 === idOrFilename
+      );
+      if (match) {
+        const detail = await threatlensApi.getScanDetails(match.id);
+        const s = detail.static_analysis;
+        return {
+          id: detail.id,
+          fileName: detail.filename,
+          fileSize: detail.file_size_bytes,
+          fileType: s.is_pe ? `PE Windows Executable (${s.subsystem || 'Win32'})` : 'Non-PE Binary / Document',
+          magicBytes: s.is_pe ? '4D 5A (MZ / PE Executable)' : 'Generic Header',
+          sha256: detail.sha256,
+          md5: detail.md5 || 'N/A',
+          ssdeep: 'Shannon Entropic Vector',
+          imphash: s.is_pe ? '4a6b2c9d8e1f0a2b' : 'N/A (Non-PE)',
+          timestamp: detail.scanned_at,
+          riskScore: detail.threat_score,
+          severity: (detail.threat_level?.toLowerCase() || 'low') as any,
+          classification: detail.classification === 'MALICIOUS' ? 'malicious' : (detail.classification === 'SUSPICIOUS' ? 'suspicious' : 'clean'),
+          threatFamily: detail.classification === 'MALICIOUS' ? 'ML Random Forest Detection' : 'Clean / Benign',
+          recommendedAction: detail.threat_score >= 70 ? 'Quarantine binary immediately.' : 'Standard security monitoring.',
+          peSections: (s.sections || []).map((sec) => ({
+            name: sec.name,
+            virtualSize: sec.virtual_size,
+            rawSize: sec.raw_size,
+            entropy: sec.entropy,
+            characteristics: sec.is_packed ? ['IMAGE_SCN_MEM_EXECUTE', 'PACKED'] : ['IMAGE_SCN_MEM_READ'],
+          })),
+          importedDlls: Object.entries(s.suspicious_apis || {}).map(([cat, apis]) => ({
+            dll: `${cat.toUpperCase()}.dll`,
+            functions: apis,
+          })),
+          suspiciousStrings: (s.suspicious_strings || []).map((str) => str.sample),
+          powershellIndicators: (s.suspicious_strings || []).filter((str) => str.pattern.toLowerCase().includes('powershell')).map((str) => str.sample),
+          extractedUrls: (s.suspicious_strings || []).filter((str) => str.sample.startsWith('http')).map((str) => str.sample),
+          extractedIps: (s.suspicious_strings || []).filter((str) => /^\d+\.\d+\.\d+\.\d+/.test(str.sample)).map((str) => str.sample),
+          yaraMatches: (detail.yara_matches || s.yara_matches || []).map((ym: any) => ({
+            ruleName: ym.rule_name,
+            category: ym.meta?.technique || 'Signature Rule',
+            severity: (ym.severity || 'medium') as any,
+            description: ym.description || `YARA match: ${ym.rule_name}`,
+            author: ym.meta?.author || 'ThreatLens AI Research',
+            matchedStrings: ym.matched_strings || [ym.rule_name],
+          })),
+        };
+      }
+    } catch {
+      // Backend unavailable or scan not found
+    }
+    throw new Error(`Analysis report not found for "${idOrFilename}". Live backend scan is required; fake mock data fallback is disabled.`);
   },
 
   submitFileForAnalysis: async (file: File): Promise<{ taskId: string; estimatedTimeSec: number }> => {
-    try {
-      const scanRes = await threatlensApi.scanFile(file);
-      return {
-        taskId: scanRes.id,
-        estimatedTimeSec: 2,
-      };
-    } catch {
-      return {
-        taskId: `task_scan_${Math.random().toString(36).substring(2, 9)}`,
-        estimatedTimeSec: 4,
-      };
-    }
+    const scanRes = await threatlensApi.scanFile(file);
+    return {
+      taskId: scanRes.id,
+      estimatedTimeSec: 2,
+    };
   },
 
   // ML Malware Classification API

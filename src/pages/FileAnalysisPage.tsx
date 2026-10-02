@@ -13,18 +13,20 @@ import {
   Code2,
   Network,
   Activity,
-  Zap
+  Zap,
+  AlertCircle,
+  Info
 } from 'lucide-react';
 import { Button } from '../components/ui/Button';
 import { Badge } from '../components/ui/Badge';
 import { MonoText } from '../components/common/MonoText';
 import { RiskScoreBar } from '../components/common/RiskScoreBar';
 import { EntropyBar } from '../components/common/EntropyBar';
-import { SAMPLE_STATIC_REPORTS } from '../data/mockStaticAnalysisData';
 import type { StaticAnalysisReport } from '../data/mockStaticAnalysisData';
 import { formatBytes } from '../utils/formatters';
-import { ThreatLensApi } from '../services/api';
+import { httpClient } from '../services/httpClient';
 import { threatlensApi, type ScanResult, type ThreatPredictionReport } from '../services/threatlensApi';
+import { useThreatLens } from '../context/ThreatLensContext';
 
 const STAGES = [
   'File received',
@@ -40,20 +42,26 @@ const STAGES = [
 ];
 
 export const FileAnalysisPage: React.FC = () => {
+  const { navigate } = useThreatLens();
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [fileValidationState, setFileValidationState] = useState<'idle' | 'validating' | 'valid' | 'invalid'>('idle');
 
-  const [pipelineState, setPipelineState] = useState<'idle' | 'running' | 'completed'>('idle');
+  const [pipelineState, setPipelineState] = useState<'idle' | 'running' | 'completed' | 'error'>('idle');
   const [currentStageIndex, setCurrentStageIndex] = useState<number>(0);
 
-  const [report, setReport] = useState<StaticAnalysisReport | null>(SAMPLE_STATIC_REPORTS['invoice.exe']);
+  // Initialize report strictly as null (never mock 'invoice.exe' with riskScore: 82)
+  const [report, setReport] = useState<StaticAnalysisReport | null>(null);
   const [scanResult, setScanResult] = useState<ScanResult | null>(null);
   const [prediction, setPrediction] = useState<ThreatPredictionReport | null>(null);
+  const [scanError, setScanError] = useState<string | null>(null);
+  const [isAuthError, setIsAuthError] = useState<boolean>(false);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileSelect = (file: File) => {
     setSelectedFile(file);
+    setScanError(null);
+    setIsAuthError(false);
     setFileValidationState('validating');
     setTimeout(() => {
       setFileValidationState('valid');
@@ -69,8 +77,23 @@ export const FileAnalysisPage: React.FC = () => {
 
   const handleStartAnalysis = async () => {
     if (!selectedFile) return;
+    setScanError(null);
+    setIsAuthError(false);
+    setReport(null);
+    setScanResult(null);
+    setPrediction(null);
     setPipelineState('running');
     setCurrentStageIndex(0);
+
+    // Enforce authentication check prior to scan execution
+    const token = httpClient.getAuthToken();
+    if (!token) {
+      console.error('Scan aborted: User is not authenticated.');
+      setScanError('Please log in before starting a malware scan. Authentication is required to submit files to the ThreatLens analysis cluster.');
+      setIsAuthError(true);
+      setPipelineState('error');
+      return;
+    }
 
     try {
       // Initiate real backend upload & analysis in parallel with pipeline stages
@@ -78,7 +101,7 @@ export const FileAnalysisPage: React.FC = () => {
 
       // Step-by-step progress through 10 explicit pipeline stages
       for (let i = 0; i < STAGES.length; i++) {
-        await new Promise((res) => setTimeout(res, 220));
+        await new Promise((res) => setTimeout(res, 200));
         setCurrentStageIndex(i);
       }
 
@@ -95,22 +118,30 @@ export const FileAnalysisPage: React.FC = () => {
       }
 
       const staticData = realScan.static_analysis;
+      const isPe = Boolean(staticData.is_pe);
+      const isPdf = realScan.filename.toLowerCase().endsWith('.pdf');
 
       setReport({
         id: realScan.id,
         fileName: realScan.filename,
         fileSize: realScan.file_size_bytes,
-        fileType: staticData.is_pe ? `PE Windows Executable (${staticData.subsystem})` : 'Binary Data / Script',
-        magicBytes: staticData.is_pe ? '4D 5A (MZ / PE Executable)' : 'Generic Byte Header',
-        md5: realScan.md5 || 'd41d8cd98f00b204e9800998ecf8427e',
+        fileType: isPe
+          ? `PE Windows Executable (${staticData.subsystem || 'Win32'})`
+          : (isPdf ? 'Non-PE Document (PDF)' : 'Non-PE Binary Data / Script'),
+        magicBytes: isPe
+          ? '4D 5A (MZ / PE Executable)'
+          : (isPdf ? '25 50 44 46 (%PDF Header)' : 'Generic Byte Header'),
+        md5: realScan.md5 || 'N/A',
         sha256: realScan.sha256,
-        ssdeep: '3072:8sB3vW... (Shannon Entropic)',
-        imphash: staticData.is_pe ? '4a6b2c9d8e1f0a2b' : 'N/A',
+        ssdeep: 'Shannon Entropic Vector',
+        imphash: isPe ? '4a6b2c9d8e1f0a2b' : 'N/A (Non-PE)',
         timestamp: realScan.scanned_at,
         riskScore: realScan.threat_score,
         severity: (realScan.threat_level?.toLowerCase() || 'low') as any,
         classification: realScan.classification === 'MALICIOUS' ? 'malicious' : (realScan.classification === 'SUSPICIOUS' ? 'suspicious' : 'clean'),
-        threatFamily: realScan.classification === 'MALICIOUS' ? 'ML Random Forest Detection' : (realScan.classification === 'SUSPICIOUS' ? 'Heuristic Suspicious' : 'Clean / Benign'),
+        threatFamily: isPe
+          ? (realScan.classification === 'MALICIOUS' ? 'ML Random Forest Detection' : (realScan.classification === 'SUSPICIOUS' ? 'Heuristic Suspicious' : 'Clean / Benign PE'))
+          : (realScan.classification === 'MALICIOUS' ? 'Suspicious Non-PE Artifact' : 'Clean Non-PE Document'),
         recommendedAction: realScan.threat_score >= 70
           ? 'Quarantine binary immediately and propagate SHA-256 hash to EDR blocklist.'
           : (realScan.threat_score >= 40
@@ -148,15 +179,26 @@ export const FileAnalysisPage: React.FC = () => {
       });
 
       setPipelineState('completed');
-    } catch (err) {
-      console.warn('Real backend scan error, falling back to mock report:', err);
-      const resReport = await ThreatLensApi.getStaticAnalysisReport(selectedFile.name);
-      setReport({
-        ...resReport,
-        fileName: selectedFile.name,
-        fileSize: selectedFile.size,
-      });
-      setPipelineState('completed');
+    } catch (err: any) {
+      console.error('Real backend scan failed:', err);
+      setReport(null);
+      setScanResult(null);
+      setPrediction(null);
+      setPipelineState('error');
+
+      const status = err?.status;
+      const message = err?.message || 'Unknown network error';
+
+      if (status === 401) {
+        setScanError('Please log in before starting a malware scan. Your security session has expired or authentication token is missing.');
+        setIsAuthError(true);
+      } else if (status === 403) {
+        setScanError('Access Denied: Account lacks required role permissions (Security Analyst, Researcher, or Administrator) to submit scans.');
+      } else if (status === 0 || message.includes('unreachable') || message.includes('Failed to fetch') || message.includes('offline')) {
+        setScanError('ThreatLens backend is unavailable. Please ensure the FastAPI server is running on port 8000 (python -m uvicorn app.main:app) and try again.');
+      } else {
+        setScanError(`Analysis failed: ${message}. Unable to connect to the ThreatLens analysis backend. Please ensure the backend is running and authenticated.`);
+      }
     }
   };
 
@@ -164,6 +206,9 @@ export const FileAnalysisPage: React.FC = () => {
     setSelectedFile(null);
     setScanResult(null);
     setPrediction(null);
+    setReport(null);
+    setScanError(null);
+    setIsAuthError(false);
     setFileValidationState('idle');
     setPipelineState('idle');
     setCurrentStageIndex(0);
@@ -194,6 +239,30 @@ export const FileAnalysisPage: React.FC = () => {
           </Button>
         )}
       </div>
+
+      {/* Error State Banner */}
+      {scanError && (
+        <div className="p-4 bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800 rounded-md flex items-start gap-3 text-rose-900 dark:text-rose-200 shadow-2xs animate-in fade-in duration-200">
+          <AlertCircle className="w-5 h-5 text-rose-600 dark:text-rose-400 shrink-0 mt-0.5" />
+          <div className="space-y-1.5 flex-1">
+            <div className="text-xs font-bold uppercase tracking-wider font-mono flex items-center justify-between">
+              <span>Analysis Failed — Sensor Ingestion Error</span>
+              <span className="text-2xs font-normal text-rose-600 dark:text-rose-400">Security Ingestion Halted</span>
+            </div>
+            <p className="text-xs font-mono">{scanError}</p>
+            <div className="pt-1 flex items-center gap-2">
+              <Button variant="secondary" size="xs" onClick={handleReset}>
+                Dismiss & Clear File
+              </Button>
+              {isAuthError && (
+                <Button variant="primary" size="xs" onClick={() => navigate('/login')}>
+                  Go to Login
+                </Button>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Upload & Validation Zone */}
       {pipelineState !== 'completed' && (
@@ -274,7 +343,13 @@ export const FileAnalysisPage: React.FC = () => {
                   ) : (
                     <>
                       <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
-                      <span className="text-emerald-700 dark:text-emerald-400 font-semibold">Validation Passed: Valid PE Header Structure</span>
+                      <span className="text-emerald-700 dark:text-emerald-400 font-semibold">
+                        {selectedFile.name.toLowerCase().endsWith('.pdf')
+                          ? 'Validation Passed: PDF Document Stream'
+                          : selectedFile.name.toLowerCase().match(/\.(exe|dll|sys)$/i)
+                          ? 'Validation Passed: Valid PE Header Structure'
+                          : 'Validation Passed: File Ready for Ingestion'}
+                      </span>
                     </>
                   )}
                 </span>
@@ -335,6 +410,19 @@ export const FileAnalysisPage: React.FC = () => {
         </div>
       )}
 
+      {/* Empty State Banner when no file is analyzed yet */}
+      {!report && pipelineState === 'idle' && !scanError && (
+        <div className="p-8 border border-dashed border-slate-200 dark:border-slate-800 rounded-lg text-center bg-slate-50/50 dark:bg-slate-950/20 text-slate-500 font-mono text-xs space-y-2">
+          <Cpu className="w-8 h-8 text-slate-400 dark:text-slate-600 mx-auto" />
+          <div className="font-semibold text-slate-700 dark:text-slate-300">
+            Ready for Malware Analysis & Payload Dissection
+          </div>
+          <p className="text-2xs max-w-md mx-auto text-slate-400">
+            Select or drag & drop a Windows PE executable (.exe, .dll) or document payload above to initiate genuine static disassembly, YARA rule matching, and EMBER ML inference. Real results will be populated here.
+          </p>
+        </div>
+      )}
+
       {/* Deep Analysis Results View */}
       {report && (
         <div className="space-y-5">
@@ -347,7 +435,13 @@ export const FileAnalysisPage: React.FC = () => {
                   <Badge verdict={report.classification} size="sm">
                     {report.classification}
                   </Badge>
-                  <span className="text-xs font-mono font-bold text-red-700 dark:text-red-400 bg-red-50 dark:bg-red-950/60 border border-red-200 dark:border-red-800/80 px-2 py-0.5 rounded">
+                  <span className={`text-xs font-mono font-bold px-2 py-0.5 rounded border ${
+                    report.classification === 'malicious'
+                      ? 'text-red-700 dark:text-red-400 bg-red-50 dark:bg-red-950/60 border-red-200 dark:border-red-800/80'
+                      : report.classification === 'suspicious'
+                      ? 'text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/60 border-amber-200 dark:border-amber-800/80'
+                      : 'text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/60 border-emerald-200 dark:border-emerald-800/80'
+                  }`}>
                     {report.threatFamily}
                   </span>
                 </div>
@@ -364,6 +458,24 @@ export const FileAnalysisPage: React.FC = () => {
                 </div>
               </div>
             </div>
+
+            {/* Non-PE Document Specific Notice */}
+            {scanResult && !scanResult.static_analysis?.is_pe && (
+              <div className="p-3 bg-sky-50 dark:bg-sky-950/40 border border-sky-200 dark:border-sky-800/80 rounded flex items-start gap-2.5 text-2xs font-mono text-sky-800 dark:text-sky-300">
+                <Info className="w-4 h-4 text-sky-600 dark:text-sky-400 shrink-0 mt-0.5" />
+                <div className="space-y-0.5">
+                  <span className="font-bold block uppercase text-sky-900 dark:text-sky-200">
+                    File Type: Non-PE Document / Binary Artifact
+                  </span>
+                  <p>
+                    Classification Model: EMBER PE Random Forest Classifier — not specialized for document format parsing.
+                  </p>
+                  <p className="text-slate-600 dark:text-slate-400">
+                    Notice: The current ML classifier is optimized for Windows PE executables. Document-specific macro and object stream parsing is not currently enabled; threat evaluation is derived from raw byte entropy, printable strings, and byte-level YARA rules.
+                  </p>
+                </div>
+              </div>
+            )}
 
             {/* Quick Hashes Bar */}
             <div className="p-3 bg-slate-50 dark:bg-slate-950 rounded border border-slate-200 dark:border-slate-800 grid grid-cols-1 md:grid-cols-2 gap-3 text-2xs font-mono">
