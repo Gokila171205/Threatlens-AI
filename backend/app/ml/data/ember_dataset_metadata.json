@@ -1,0 +1,161 @@
+{
+  "source_dataset": [
+    "official:ember2018/train_features_1.jsonl"
+  ],
+  "total_samples": 10000,
+  "benign_count": 5000,
+  "malicious_count": 5000,
+  "feature_count": 20,
+  "feature_names": [
+    "file_size_kb",
+    "is_pe",
+    "num_sections",
+    "max_section_entropy",
+    "mean_section_entropy",
+    "has_high_entropy_section",
+    "num_suspicious_sections",
+    "entrypoint_in_nontext",
+    "virtual_size_ratio",
+    "num_imports",
+    "num_suspicious_imports",
+    "has_injection_api",
+    "has_keylogging_api",
+    "has_network_api",
+    "has_evasion_api",
+    "has_persistence_api",
+    "has_signature",
+    "has_tls_callbacks",
+    "suspicious_strings_count",
+    "byte_entropy"
+  ],
+  "extraction_timestamp": "2026-09-21T14:09:27.596374+00:00",
+  "total_records_processed": 14447,
+  "unlabeled_records_skipped": 3939,
+  "invalid_corrupt_records_skipped": 0,
+  "feature_statistics": {
+    "file_size_kb": {
+      "min": 0.32,
+      "max": 204199.01,
+      "mean": 1657.4082,
+      "std": 5241.324
+    },
+    "is_pe": {
+      "min": 1.0,
+      "max": 1.0,
+      "mean": 1.0,
+      "std": 0.0
+    },
+    "num_sections": {
+      "min": 0.0,
+      "max": 38.0,
+      "mean": 4.8156,
+      "std": 2.1414
+    },
+    "max_section_entropy": {
+      "min": 0.0,
+      "max": 8.0,
+      "mean": 6.7455,
+      "std": 1.0209
+    },
+    "mean_section_entropy": {
+      "min": 0.0,
+      "max": 7.9836,
+      "mean": 4.4956,
+      "std": 1.1124
+    },
+    "has_high_entropy_section": {
+      "min": 0.0,
+      "max": 1.0,
+      "mean": 0.3491,
+      "std": 0.4767
+    },
+    "num_suspicious_sections": {
+      "min": 0.0,
+      "max": 7.0,
+      "mean": 0.4505,
+      "std": 0.7744
+    },
+    "entrypoint_in_nontext": {
+      "min": 0.0,
+      "max": 1.0,
+      "mean": 0.1466,
+      "std": 0.3537
+    },
+    "virtual_size_ratio": {
+      "min": 0.0,
+      "max": 20.0,
+      "mean": 8.8494,
+      "std": 8.8991
+    },
+    "num_imports": {
+      "min": 0.0,
+      "max": 9024.0,
+      "mean": 113.2827,
+      "std": 208.0708
+    },
+    "num_suspicious_imports": {
+      "min": 0.0,
+      "max": 1324.0,
+      "mean": 8.0154,
+      "std": 20.9826
+    },
+    "has_injection_api": {
+      "min": 0.0,
+      "max": 1.0,
+      "mean": 0.4043,
+      "std": 0.4908
+    },
+    "has_keylogging_api": {
+      "min": 0.0,
+      "max": 1.0,
+      "mean": 0.1521,
+      "std": 0.3591
+    },
+    "has_network_api": {
+      "min": 0.0,
+      "max": 1.0,
+      "mean": 0.2793,
+      "std": 0.4487
+    },
+    "has_evasion_api": {
+      "min": 0.0,
+      "max": 1.0,
+      "mean": 0.5366,
+      "std": 0.4987
+    },
+    "has_persistence_api": {
+      "min": 0.0,
+      "max": 1.0,
+      "mean": 0.3276,
+      "std": 0.4693
+    },
+    "has_signature": {
+      "min": 0.0,
+      "max": 1.0,
+      "mean": 0.2242,
+      "std": 0.4171
+    },
+    "has_tls_callbacks": {
+      "min": 0.0,
+      "max": 1.0,
+      "mean": 0.3394,
+      "std": 0.4735
+    },
+    "suspicious_strings_count": {
+      "min": 0.0,
+      "max": 2764.0,
+      "mean": 14.3351,
+      "std": 58.1759
+    },
+    "byte_entropy": {
+      "min": 0.0,
+      "max": 7.9994,
+      "mean": 5.9511,
+      "std": 1.3149
+    }
+  },
+  "files": {
+    "features_file": "C:\\Users\\dharanesh\\OneDrive\\Desktop\\infy\\backend\\app\\ml\\data\\ember_features.npy",
+    "labels_file": "C:\\Users\\dharanesh\\OneDrive\\Desktop\\infy\\backend\\app\\ml\\data\\ember_labels.npy"
+  }
+}

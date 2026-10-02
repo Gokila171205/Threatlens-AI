@@ -1,0 +1,114 @@
+{
+  "dataset": "EMBER 2018 (Official PE Benchmark)",
+  "model_name": "ThreatLens-RandomForest-EMBER",
+  "algorithm": "Random Forest (NumPy Ensemble)",
+  "version": "2.1.0-ember",
+  "trained_at": "2026-09-21T14:11:41.416835+00:00",
+  "random_seed": 42,
+  "sample_counts": {
+    "total_samples": 10000,
+    "total_benign": 5000,
+    "total_malicious": 5000,
+    "train_total": 8000,
+    "train_benign": 4000,
+    "train_malicious": 4000,
+    "test_total": 2000,
+    "test_benign": 1000,
+    "test_malicious": 1000
+  },
+  "feature_count": 20,
+  "features": [
+    "file_size_kb",
+    "is_pe",
+    "num_sections",
+    "max_section_entropy",
+    "mean_section_entropy",
+    "has_high_entropy_section",
+    "num_suspicious_sections",
+    "entrypoint_in_nontext",
+    "virtual_size_ratio",
+    "num_imports",
+    "num_suspicious_imports",
+    "has_injection_api",
+    "has_keylogging_api",
+    "has_network_api",
+    "has_evasion_api",
+    "has_persistence_api",
+    "has_signature",
+    "has_tls_callbacks",
+    "suspicious_strings_count",
+    "byte_entropy"
+  ],
+  "hyperparameters": {
+    "n_estimators": 45,
+    "max_depth": 9,
+    "min_samples_split": 4,
+    "random_state": 42
+  },
+  "metrics": {
+    "total_test_samples": 2000,
+    "accuracy": 0.872,
+    "precision": 0.9106,
+    "recall": 0.825,
+    "f1_score": 0.8657,
+    "macro_precision": 0.8753,
+    "macro_recall": 0.872,
+    "macro_f1": 0.8717
+  },
+  "confusion_matrix": {
+    "true_positive": 825,
+    "false_positive": 81,
+    "true_negative": 919,
+    "false_negative": 175,
+    "matrix_format": [
+      [
+        919,
+        81
+      ],
+      [
+        175,
+        825
+      ]
+    ],
+    "labels": [
+      "Benign (0)",
+      "Malicious (1)"
+    ]
+  },
+  "per_class_metrics": {
+    "benign_class_0": {
+      "support": 1000,
+      "precision": 0.84,
+      "recall": 0.919,
+      "f1_score": 0.8777
+    },
+    "malicious_class_1": {
+      "support": 1000,
+      "precision": 0.9106,
+      "recall": 0.825,
+      "f1_score": 0.8657
+    }
+  },
+  "feature_importances": {
+    "file_size_kb": 0.0842,
+    "is_pe": 0.0,
+    "num_sections": 0.0507,
+    "max_section_entropy": 0.124,
+    "mean_section_entropy": 0.0997,
+    "has_high_entropy_section": 0.0392,
+    "num_suspicious_sections": 0.0236,
+    "entrypoint_in_nontext": 0.0059,
+    "virtual_size_ratio": 0.0514,
+    "num_imports": 0.0838,
+    "num_suspicious_imports": 0.0634,
+    "has_injection_api": 0.0083,
+    "has_keylogging_api": 0.0063,
+    "has_network_api": 0.0159,
+    "has_evasion_api": 0.0101,
+    "has_persistence_api": 0.0125,
+    "has_signature": 0.0432,
+    "has_tls_callbacks": 0.1061,
+    "suspicious_strings_count": 0.0782,
+    "byte_entropy": 0.0935
+  }
+}

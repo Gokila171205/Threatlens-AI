@@ -1,0 +1,200 @@
+{
+  "dataset_information": {
+    "source": "Official EMBER 2018 Distribution (train_features_1.jsonl)",
+    "total_samples": 10000,
+    "benign_samples": 5000,
+    "malicious_samples": 5000,
+    "features_extracted": 20
+  },
+  "split_information": {
+    "train_samples": 8000,
+    "test_samples": 2000,
+    "stratification": "Exactly 50% Benign / 50% Malicious in both sets",
+    "random_seed": 42
+  },
+  "duplicate_check": {
+    "train_samples": 8000,
+    "test_samples": 2000,
+    "train_unique_feature_vectors": 6503,
+    "test_unique_feature_vectors": 1746,
+    "cross_split_overlapping_vectors": 436,
+    "train_internal_duplicates": 1497,
+    "test_internal_duplicates": 254,
+    "leakage_risk": "High"
+  },
+  "model_parameters": {
+    "n_estimators": 45,
+    "max_depth": 9,
+    "min_samples_split": 4,
+    "random_state": 42
+  },
+  "evaluation_metrics": {
+    "overall": {
+      "total_test_samples": 2000,
+      "accuracy": 0.872,
+      "precision": 0.9106,
+      "recall": 0.825,
+      "f1_score": 0.8657,
+      "macro_precision": 0.8753,
+      "macro_recall": 0.872,
+      "macro_f1": 0.8717
+    },
+    "confusion_matrix": {
+      "true_positive": 825,
+      "false_positive": 81,
+      "true_negative": 919,
+      "false_negative": 175,
+      "matrix_format": [
+        [
+          919,
+          81
+        ],
+        [
+          175,
+          825
+        ]
+      ],
+      "labels": [
+        "Benign (0)",
+        "Malicious (1)"
+      ]
+    },
+    "per_class_metrics": {
+      "benign_class_0": {
+        "support": 1000,
+        "precision": 0.84,
+        "recall": 0.919,
+        "f1_score": 0.8777
+      },
+      "malicious_class_1": {
+        "support": 1000,
+        "precision": 0.9106,
+        "recall": 0.825,
+        "f1_score": 0.8657
+      }
+    }
+  },
+  "ranked_feature_importance": [
+    {
+      "rank": 1,
+      "feature": "max_section_entropy",
+      "importance": 0.124
+    },
+    {
+      "rank": 2,
+      "feature": "has_tls_callbacks",
+      "importance": 0.1061
+    },
+    {
+      "rank": 3,
+      "feature": "mean_section_entropy",
+      "importance": 0.0997
+    },
+    {
+      "rank": 4,
+      "feature": "byte_entropy",
+      "importance": 0.0935
+    },
+    {
+      "rank": 5,
+      "feature": "file_size_kb",
+      "importance": 0.0842
+    },
+    {
+      "rank": 6,
+      "feature": "num_imports",
+      "importance": 0.0838
+    },
+    {
+      "rank": 7,
+      "feature": "suspicious_strings_count",
+      "importance": 0.0782
+    },
+    {
+      "rank": 8,
+      "feature": "num_suspicious_imports",
+      "importance": 0.0634
+    },
+    {
+      "rank": 9,
+      "feature": "virtual_size_ratio",
+      "importance": 0.0514
+    },
+    {
+      "rank": 10,
+      "feature": "num_sections",
+      "importance": 0.0507
+    },
+    {
+      "rank": 11,
+      "feature": "has_signature",
+      "importance": 0.0432
+    },
+    {
+      "rank": 12,
+      "feature": "has_high_entropy_section",
+      "importance": 0.0392
+    },
+    {
+      "rank": 13,
+      "feature": "num_suspicious_sections",
+      "importance": 0.0236
+    },
+    {
+      "rank": 14,
+      "feature": "has_network_api",
+      "importance": 0.0159
+    },
+    {
+      "rank": 15,
+      "feature": "has_persistence_api",
+      "importance": 0.0125
+    },
+    {
+      "rank": 16,
+      "feature": "has_evasion_api",
+      "importance": 0.0101
+    },
+    {
+      "rank": 17,
+      "feature": "has_injection_api",
+      "importance": 0.0083
+    },
+    {
+      "rank": 18,
+      "feature": "has_keylogging_api",
+      "importance": 0.0063
+    },
+    {
+      "rank": 19,
+      "feature": "entrypoint_in_nontext",
+      "importance": 0.0059
+    },
+    {
+      "rank": 20,
+      "feature": "is_pe",
+      "importance": 0.0
+    }
+  ],
+  "model_comparison": {
+    "synthetic_model": {
+      "dataset": "Synthetic EMBER-Calibrated Generator",
+      "total_samples": 1600,
+      "test_samples": 320,
+      "accuracy": 1.0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1_score": 1.0
+    },
+    "ember_model": {
+      "dataset": "Official EMBER 2018 (Benchmark Subset)",
+      "total_samples": 10000,
+      "test_samples": 2000,
+      "accuracy": 0.872,
+      "precision": 0.9106,
+      "recall": 0.825,
+      "f1_score": 0.8657
+    },
+    "analysis": "The synthetic model reports 100% due to clear mathematical boundaries in the generator. The EMBER model reflects genuine real-world static feature overlap (packed benign utilities, clean-looking droppers), providing empirical generalization."
+  }
+}

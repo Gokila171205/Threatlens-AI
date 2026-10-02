@@ -1,0 +1,82 @@
+{
+  "evaluation_type": "Group-Stratified Leakage-Resistant Evaluation",
+  "timestamp": "2026-09-21T14:13:45.164300+00:00",
+  "group_statistics": {
+    "total_samples": 10000,
+    "total_unique_feature_groups": 8065,
+    "groups_with_multiple_samples": 324,
+    "single_sample_groups": 7741,
+    "largest_group_size": 79,
+    "groups_with_conflicting_labels": 0
+  },
+  "split_metadata": {
+    "train_samples_total": 8000,
+    "test_samples_total": 2000,
+    "train_benign": 4000,
+    "train_malicious": 4000,
+    "test_benign": 1000,
+    "test_malicious": 1000,
+    "train_unique_groups": 6410,
+    "test_unique_groups": 1655,
+    "group_overlap_count": 0
+  },
+  "methodological_note": {
+    "evaluated_existing_model_directly": false,
+    "reason": "Existing model was trained with samples from groups now in test set; retraining on grouped train partition was required for true leakage-free evaluation.",
+    "retrained_model": "malware_classifier_ember_grouped.joblib",
+    "training_duration_seconds": 6.757796
+  },
+  "hyperparameters": {
+    "n_estimators": 45,
+    "max_depth": 9,
+    "min_samples_split": 4,
+    "random_state": 42
+  },
+  "metrics": {
+    "accuracy": 0.8455,
+    "malware_precision": 0.906,
+    "malware_recall": 0.771,
+    "malware_f1": 0.8331,
+    "benign_precision": 0.8007,
+    "benign_recall": 0.92,
+    "benign_f1": 0.8562,
+    "true_positives": 771,
+    "true_negatives": 920,
+    "false_positives": 80,
+    "false_negatives": 229,
+    "confusion_matrix": [
+      [
+        920,
+        80
+      ],
+      [
+        229,
+        771
+      ]
+    ]
+  },
+  "model_comparison": {
+    "step_2_random_split": {
+      "model": "malware_classifier_ember.joblib",
+      "cross_split_overlapping_vectors": 436,
+      "train_samples": 8000,
+      "test_samples": 2000,
+      "accuracy": 0.872,
+      "malware_precision": 0.9106,
+      "malware_recall": 0.825,
+      "malware_f1": 0.8657
+    },
+    "step_2_5_grouped_leakage_resistant_split": {
+      "model": "malware_classifier_ember_grouped.joblib",
+      "cross_split_overlapping_vectors": 0,
+      "train_samples": 8000,
+      "test_samples": 2000,
+      "accuracy": 0.8455,
+      "malware_precision": 0.906,
+      "malware_recall": 0.771,
+      "malware_f1": 0.8331,
+      "delta_accuracy": -0.0265,
+      "delta_f1": -0.0326
+    }
+  }
+}
