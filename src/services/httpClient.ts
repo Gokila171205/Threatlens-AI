@@ -3,8 +3,8 @@
  * Supports seamless plug-and-play backend integration with automatic mock fallback.
  */
 
-export const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL as string) || 'http://localhost:8000/api/v1';
-export const USE_MOCK_API = (import.meta.env.VITE_USE_MOCK_API as string) !== 'false';
+export const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL as string) || 'http://localhost:8000/api';
+export const USE_MOCK_API = (import.meta.env.VITE_USE_MOCK_API as string) === 'true';
 
 export class ApiError extends Error {
   public status: number;
@@ -81,18 +81,23 @@ export const httpClient = {
   },
 
   async request<T>(endpoint: string, options: RequestOptions = {}): Promise<T> {
-    const { timeoutMs = 15000, headers = {}, ...customConfig } = options;
+    const { timeoutMs = 25000, headers = {}, ...customConfig } = options;
 
     const token = this.getAuthToken();
 
+    const headersObj: Record<string, string> = {
+      Accept: 'application/json',
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      ...(headers as Record<string, string>),
+    };
+
+    if (!(customConfig.body instanceof FormData)) {
+      headersObj['Content-Type'] = headersObj['Content-Type'] || 'application/json';
+    }
+
     const config: RequestInit = {
       ...customConfig,
-      headers: {
-        'Content-Type': 'application/json',
-        Accept: 'application/json',
-        ...(token ? { Authorization: `Bearer ${token}` } : {}),
-        ...headers,
-      },
+      headers: headersObj,
     };
 
     const controller = new AbortController();
